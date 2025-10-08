@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend API Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { margin: 5px; padding: 10px 15px; }
+    </style>
+</head>
+<body>
+    <h1>Frontend API Connection Test</h1>
+    <p>This page tests the connection between frontend JavaScript and backend APIs.</p>
+    
+    <div id="results"></div>
+    
+    <button onclick="testAllAPIs()">Test All APIs</button>
+    <button onclick="testTemplateCategories()">Test Template Categories</button>
+    <button onclick="clearResults()">Clear Results</button>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        
+        function addResult(message, type = 'info') {
+            const resultsDiv = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            resultsDiv.appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testAPI(endpoint, description) {
+            try {
+                addResult(`Testing ${description}...`, 'info');
+                const response = await fetch(`${API_BASE}${endpoint}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`✅ ${description}: SUCCESS (${data.length} items)`, 'success');
+                    console.log(`${endpoint}:`, data);
+                    return data;
+                } else {
+                    addResult(`❌ ${description}: HTTP ${response.status}`, 'error');
+                    return null;
+                }
+            } catch (error) {
+                addResult(`❌ ${description}: ${error.message}`, 'error');
+                console.error(`${endpoint} error:`, error);
+                return null;
+            }
+        }
+        
+        async function testTemplateCategories() {
+            addResult('=== Testing Template Categories ===', 'info');
+            
+            const categories = ['expense', 'asset', 'liability', 'income'];
+            
+            for (const category of categories) {
+                await testAPI(`/api/templates/${category}/categories`, `${category.toUpperCase()} Categories`);
+            }
+        }
+        
+        async function testAllAPIs() {
+            addResult('=== Starting Comprehensive API Test ===', 'info');
+            
+            // Test server connection
+            await testAPI('/', 'Server Connection');
+            
+            // Test template endpoints
+            await testAPI('/api/templates/expense', 'Expense Templates');
+            await testAPI('/api/templates/asset', 'Asset Templates');
+            await testAPI('/api/templates/liability', 'Liability Templates');
+            await testAPI('/api/templates/income', 'Income Templates');
+            
+            // Test category endpoints
+            await testTemplateCategories();
+            
+            // Test data endpoints
+            await testAPI('/api/expenses', 'Expenses Data');
+            await testAPI('/api/assets', 'Assets Data');
+            await testAPI('/api/liabilities', 'Liabilities Data');
+            await testAPI('/api/income', 'Income Data');
+            
+            // Test investment endpoints
+            await testAPI('/api/rd', 'RD Investments');
+            await testAPI('/api/chit', 'Chit Funds');
+            await testAPI('/api/goldchit', 'Gold Chits');
+            
+            addResult('=== Test Complete ===', 'info');
+        }
+        
+        // Auto-run basic test on page load
+        window.onload = function() {
+            addResult('Page loaded. Backend should be running on http://localhost:5000', 'info');
+            testTemplateCategories();
+        };
+    </script>
+</body>
+</html>

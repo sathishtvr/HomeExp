@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Finance Manager</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h1>💰 Finance Manager</h1>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" onclick="showSection('dashboard')" class="nav-item active">
+                    <span class="nav-icon">📊</span>
+                    <span class="nav-text">Dashboard</span>
+                </a>
+                
+                <!-- Data Management Section -->
+                <div class="nav-section-header">Data Management</div>
+                <a href="#" onclick="showSection('templates')" class="nav-item">
+                    <span class="nav-icon">📋</span>
+                    <span class="nav-text">Templates</span>
+                </a>
+                <a href="#" onclick="showSection('income')" class="nav-item">
+                    <span class="nav-icon">💰</span>
+                    <span class="nav-text">Income</span>
+                </a>
+                <a href="#" onclick="showSection('expenses')" class="nav-item">
+                    <span class="nav-icon">💸</span>
+                    <span class="nav-text">Expenses</span>
+                </a>
+                <a href="#" onclick="showSection('assets')" class="nav-item">
+                    <span class="nav-icon">🏦</span>
+                    <span class="nav-text">Assets</span>
+                </a>
+                <a href="#" onclick="showSection('liabilities')" class="nav-item">
+                    <span class="nav-icon">💳</span>
+                    <span class="nav-text">Liabilities</span>
+                </a>
+                
+                <!-- Analysis & Tools Section -->
+                <div class="nav-section-header">Analysis & Tools</div>
+                <a href="#" onclick="showSection('reports')" class="nav-item">
+                    <span class="nav-icon">📈</span>
+                    <span class="nav-text">Reports</span>
+                </a>
+                <a href="#" onclick="showSection('ai-insights')" class="nav-item">
+                    <span class="nav-icon">🤖</span>
+                    <span class="nav-text">AI Insights</span>
+                </a>
+                <a href="#" onclick="showSection('loan-calculator')" class="nav-item">
+                    <span class="nav-icon">🧮</span>
+                    <span class="nav-text">Loan Calculator</span>
+                </a>
+                <a href="#" onclick="showSection('investments')" class="nav-item">
+                    <span class="nav-icon">💎</span>
+                    <span class="nav-text">Investments</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="main-header">
+                <h2 id="pageTitle">Dashboard</h2>
+                <div class="header-actions">
+                    <button onclick="refreshData()" class="btn-secondary">🔄 Refresh</button>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-content">
+                            <h3>Net Worth</h3>
+                            <p id="netWorthValue">₹0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🏦</div>
+                        <div class="stat-content">
+                            <h3>Total Assets</h3>
+                            <p id="assetsValue">₹0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💳</div>
+                        <div class="stat-content">
+                            <h3>Total Liabilities</h3>
+                            <p id="liabilitiesValue">₹0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">💸</div>
+                        <div class="stat-content">
+                            <h3>Monthly Expenses</h3>
+                            <p id="expensesValue">₹0</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>Net Worth Trend</h3>
+                        <canvas id="netWorthChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Expense Breakdown</h3>
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="insights-section">
+                    <div class="insight-card">
+                        <h3>Financial Health Score</h3>
+                        <div class="health-score" id="healthScore">85</div>
+                        <ul id="healthRecommendations">
+                            <li>Increase emergency fund to 6 months</li>
+                            <li>Consider diversifying investments</li>
+                            <li>Review monthly subscriptions</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Templates Section -->
+            <section id="templates" class="content-section">
+                <h2>📋 Financial Templates</h2>
+                <p style="color: #6b7280; margin-bottom: 20px;">Manage your financial categories with default amounts and descriptions</p>
+                
+                <!-- Tab Navigation -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="btn-primary" onclick="showTemplateTab('expense')" id="btnExpenseTemplates">💸 Expense</button>
+                    <button class="btn-primary" onclick="showTemplateTab('income')" id="btnIncomeTemplates">💰 Income</button>
+                    <button class="btn-primary" onclick="showTemplateTab('asset')" id="btnAssetTemplates">🏦 Asset</button>
+                    <button class="btn-primary" onclick="showTemplateTab('liability')" id="btnLiabilityTemplates">💳 Liability</button>
+                </div>
+
+                <!-- Template Sections -->
+                <div id="expenseTemplatesSection" class="template-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>💸 Expense Templates</h3>
+                        <button class="btn-primary" onclick="openModal('addExpenseTemplateModal')">+ Add Template</button>
+                    </div>
+                    <div id="expenseTemplatesList"></div>
+                </div>
+
+                <div id="incomeTemplatesSection" class="template-section" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>💰 Income Templates</h3>
+                        <button class="btn-primary" onclick="openModal('addIncomeTemplateModal')">+ Add Template</button>
+                    </div>
+                    <div id="incomeTemplatesList"></div>
+                </div>
+
+                <div id="assetTemplatesSection" class="template-section" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>🏦 Asset Templates</h3>
+                        <button class="btn-primary" onclick="openModal('addAssetTemplateModal')">+ Add Template</button>
+                    </div>
+                    <div id="assetTemplatesList"></div>
+                </div>
+
+                <div id="liabilityTemplatesSection" class="template-section" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>💳 Liability Templates</h3>
+                        <button class="btn-primary" onclick="openModal('addLiabilityTemplateModal')">+ Add Template</button>
+                    </div>
+                    <div id="liabilityTemplatesList"></div>
+                </div>
+            </section>
+
+            <!-- Investments Section -->
+            <section id="investments" class="content-section">
+                <h2>💰 Investments Tracker</h2>
+                <p style="color: #6b7280; margin-bottom: 20px;">Track RD, Chit Funds, and Gold Chit payments</p>
+                
+                <!-- Tab Navigation -->
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <button class="btn-primary" onclick="showInvestmentTab('rd')" id="btnRD">🏦 RD</button>
+                    <button class="btn-primary" onclick="showInvestmentTab('chit')" id="btnChit">💎 Chit Funds</button>
+                    <button class="btn-primary" onclick="showInvestmentTab('gold-chit')" id="btnGoldChit">🪙 Gold Chit</button>
+                </div>
+
+                <!-- RD Section -->
+                <div id="rdSection" class="investment-section">
+                    <button class="btn-primary" onclick="openModal('addRDModal')" style="margin-bottom: 20px;">+ Add RD Account</button>
+                    <div id="rdList"></div>
+                </div>
+
+                <!-- Chit Funds Section -->
+                <div id="chitSection" class="investment-section" style="display: none;">
+                    <button class="btn-primary" onclick="openModal('addChitModal')" style="margin-bottom: 20px;">+ Add Chit Fund</button>
+                    <div id="chitList"></div>
+                </div>
+
+                <!-- Gold Chit Section -->
+                <div id="goldChitSection" class="investment-section" style="display: none;">
+                    <button class="btn-primary" onclick="openModal('addGoldChitModal')" style="margin-bottom: 20px;">+ Add Gold Chit</button>
+                    <div id="goldChitList"></div>
+                </div>
+            </section>
+
+            <!-- Expenses Section -->
+            <section id="expenses" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Expenses</h2>
+                    <button class="btn-primary" onclick="openModal('addExpenseModal')">+ Add Expense</button>
+                </div>
+                <div class="data-table-container">
+                    <div class="table-controls">
+                        <input type="text" class="search-box" placeholder="🔍 Search expenses..." onkeyup="searchTable('expensesTable', this.value)">
+                        <span class="table-info" id="expensesInfo">Showing all expenses</span>
+                    </div>
+                    <table class="data-table" id="expensesTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Assets Section -->
+            <section id="assets" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Assets</h2>
+                    <button class="btn-primary" onclick="openModal('addAssetModal')">+ Add Asset</button>
+                </div>
+                <div class="data-table-container">
+                    <div class="table-controls">
+                        <input type="text" class="search-box" placeholder="🔍 Search assets..." onkeyup="searchTable('assetsTable', this.value)">
+                        <span class="table-info" id="assetsInfo">Showing all assets</span>
+                    </div>
+                    <table class="data-table" id="assetsTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Value</th>
+                                <th>Month</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetsTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Liabilities Section -->
+            <section id="liabilities" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Liabilities</h2>
+                    <button class="btn-primary" onclick="openModal('addLiabilityModal')">+ Add Liability</button>
+                </div>
+                <div class="data-table-container">
+                    <div class="table-controls">
+                        <input type="text" class="search-box" placeholder="🔍 Search liabilities..." onkeyup="searchTable('liabilitiesTable', this.value)">
+                        <span class="table-info" id="liabilitiesInfo">Showing all liabilities</span>
+                    </div>
+                    <table class="data-table" id="liabilitiesTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Month</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="liabilitiesTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Income Section -->
+            <section id="income" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Income</h2>
+                    <button class="btn-primary" onclick="openModal('addIncomeModal')">+ Add Income</button>
+                </div>
+                <div class="data-table-container">
+                    <div class="table-controls">
+                        <input type="text" class="search-box" placeholder="🔍 Search income..." onkeyup="searchTable('incomeTable', this.value)">
+                        <span class="table-info" id="incomeInfo">Showing all income</span>
+                    </div>
+                    <table class="data-table" id="incomeTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Source</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="incomeTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Loan Calculator Section -->
+            <section id="loan-calculator" class="content-section">
+                <h2>🧮 Loan Calculator</h2>
+                <p style="color: #6b7280; margin-bottom: 30px;">Calculate EMI, total payment, and interest for your loans</p>
+                
+                <div class="calculator-container">
+                    <div class="calculator-form">
+                        <h3>Calculate EMI</h3>
+                        <div class="form-group">
+                            <label>Loan Amount (₹)</label>
+                            <input type="number" id="loanAmount" placeholder="1000000" step="1000">
+                        </div>
+                        <div class="form-group">
+                            <label>Interest Rate (% per annum)</label>
+                            <input type="number" id="interestRate" placeholder="8.5" step="0.1">
+                        </div>
+                        <div class="form-group">
+                            <label>Tenure (Years)</label>
+                            <input type="number" id="loanTenure" placeholder="20" step="1">
+                        </div>
+                        <button class="btn-primary" onclick="calculateEMI()">Calculate EMI</button>
+                    </div>
+                    
+                    <div class="calculator-results">
+                        <h3>Results</h3>
+                        <div class="result-card">
+                            <div class="result-item">
+                                <span>Monthly EMI</span>
+                                <strong id="emiAmount">₹0</strong>
+                            </div>
+                            <div class="result-item">
+                                <span>Total Payment</span>
+                                <strong id="totalPayment">₹0</strong>
+                            </div>
+                            <div class="result-item">
+                                <span>Total Interest</span>
+                                <strong id="totalInterest">₹0</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="loan-tips">
+                            <h4>💡 Loan Tips</h4>
+                            <ul id="loanTips">
+                                <li>Make prepayments to reduce interest burden</li>
+                                <li>Compare rates from multiple lenders</li>
+                                <li>Consider shorter tenure to save on interest</li>
+                                <li>Maintain good credit score for better rates</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Insights Section -->
+            <section id="ai-insights" class="content-section">
+                <h2>🤖 AI Financial Insights</h2>
+                <p style="color: #6b7280; margin-bottom: 30px;">AI-powered analysis and recommendations for your finances</p>
+                
+                <div class="insights-grid">
+                    <div class="insight-card">
+                        <h3>📈 Monthly Predictions</h3>
+                        <div id="monthlyPredictions">
+                            <div class="prediction-item">
+                                <span>Next Month Expenses</span>
+                                <strong>₹45,000</strong>
+                            </div>
+                            <div class="prediction-item">
+                                <span>Savings Potential</span>
+                                <strong>₹15,000</strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card">
+                        <h3>💰 Investment Suggestions</h3>
+                        <div id="investmentSuggestions">
+                            <ul>
+                                <li>Increase SIP by ₹5,000 for better returns</li>
+                                <li>Consider ELSS for tax savings</li>
+                                <li>Diversify with international funds</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card">
+                        <h3>📊 Budget Analysis</h3>
+                        <div id="budgetAnalysis">
+                            <div class="analysis-item">
+                                <span>Housing (35%)</span>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 35%"></div>
+                                </div>
+                            </div>
+                            <div class="analysis-item">
+                                <span>Food (20%)</span>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 20%"></div>
+                                </div>
+                            </div>
+                            <div class="analysis-item">
+                                <span>Transport (15%)</span>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 15%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="insight-card">
+                        <h3>🎯 Tax Optimization</h3>
+                        <div id="taxOptimization">
+                            <ul>
+                                <li>Invest ₹1.5L in 80C for tax saving</li>
+                                <li>Consider NPS for additional deduction</li>
+                                <li>Health insurance premium eligible</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Data Entry Modals -->
+    <div id="addExpenseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addExpenseModal')">&times;</span>
+            <h2>Add Expense</h2>
+            <form onsubmit="addExpense(event)">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="expenseCategory" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="expenseDescription" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount (₹)</label>
+                    <input type="number" step="0.01" id="expenseAmount" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="expenseDate" required>
+                </div>
+                <button type="submit" class="btn-primary">Add Expense</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addAssetModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addAssetModal')">&times;</span>
+            <h2>Add Asset</h2>
+            <form onsubmit="addAsset(event)">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="assetName" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="assetCategory" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Value (₹)</label>
+                    <input type="number" step="0.01" id="assetValue" required>
+                </div>
+                <div class="form-group">
+                    <label>Month</label>
+                    <input type="month" id="assetMonth" required>
+                </div>
+                <button type="submit" class="btn-primary">Add Asset</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addLiabilityModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addLiabilityModal')">&times;</span>
+            <h2>Add Liability</h2>
+            <form onsubmit="addLiability(event)">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="liabilityName" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="liabilityCategory" required>
+                        <option value="">Select Type</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Amount (₹)</label>
+                    <input type="number" step="0.01" id="liabilityAmount" required>
+                </div>
+                <div class="form-group">
+                    <label>Month</label>
+                    <input type="month" id="liabilityMonth" required>
+                </div>
+                <button type="submit" class="btn-primary">Add Liability</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addIncomeModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addIncomeModal')">&times;</span>
+            <h2>Add Income</h2>
+            <form onsubmit="addIncome(event)">
+                <div class="form-group">
+                    <label>Source</label>
+                    <input type="text" id="incomeSource" required placeholder="e.g., Salary, Business">
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="incomeCategory" required>
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Amount (₹)</label>
+                    <input type="number" step="0.01" id="incomeAmount" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="incomeDate" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="incomeRecurring">
+                        Recurring Income
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary">Add Income</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Template Modals -->
+    <div id="addExpenseTemplateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addExpenseTemplateModal')">&times;</span>
+            <h2>Add Expense Template</h2>
+            <form onsubmit="addExpenseTemplate(event)">
+                <div class="form-group">
+                    <label>Category *</label>
+                    <input type="text" id="expenseTemplateCategory" required placeholder="e.g., Housing, Food">
+                </div>
+                <div class="form-group">
+                    <label>Subcategory</label>
+                    <input type="text" id="expenseTemplateSubcategory" placeholder="e.g., Rent, Groceries">
+                </div>
+                <div class="form-group">
+                    <label>Default Amount (₹)</label>
+                    <input type="number" step="0.01" id="expenseTemplateAmount" placeholder="5000">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="expenseTemplateDescription" placeholder="Brief description">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="expenseTemplateRecurring" checked>
+                        Recurring (Monthly)
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary">Add Template</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addIncomeTemplateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addIncomeTemplateModal')">&times;</span>
+            <h2>Add Income Template</h2>
+            <form onsubmit="addIncomeTemplate(event)">
+                <div class="form-group">
+                    <label>Category *</label>
+                    <input type="text" id="incomeTemplateCategory" required placeholder="e.g., Salary, Business">
+                </div>
+                <div class="form-group">
+                    <label>Subcategory</label>
+                    <input type="text" id="incomeTemplateSubcategory" placeholder="e.g., Base Salary, Bonus">
+                </div>
+                <div class="form-group">
+                    <label>Default Amount (₹)</label>
+                    <input type="number" step="0.01" id="incomeTemplateAmount" placeholder="50000">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="incomeTemplateDescription" placeholder="Brief description">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="incomeTemplateRecurring" checked>
+                        Recurring (Monthly)
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary">Add Template</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addAssetTemplateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addAssetTemplateModal')">&times;</span>
+            <h2>Add Asset Template</h2>
+            <form onsubmit="addAssetTemplate(event)">
+                <div class="form-group">
+                    <label>Category *</label>
+                    <input type="text" id="assetTemplateCategory" required placeholder="e.g., Savings Account, Fixed Deposit">
+                </div>
+                <div class="form-group">
+                    <label>Subcategory</label>
+                    <input type="text" id="assetTemplateSubcategory" placeholder="e.g., Primary Savings, Emergency Fund">
+                </div>
+                <div class="form-group">
+                    <label>Default Amount (₹)</label>
+                    <input type="number" step="0.01" id="assetTemplateAmount" placeholder="50000">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="assetTemplateDescription" placeholder="Brief description">
+                </div>
+                <button type="submit" class="btn-primary">Add Template</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addLiabilityTemplateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addLiabilityTemplateModal')">&times;</span>
+            <h2>Add Liability Template</h2>
+            <form onsubmit="addLiabilityTemplate(event)">
+                <div class="form-group">
+                    <label>Category *</label>
+                    <input type="text" id="liabilityTemplateCategory" required placeholder="e.g., Home Loan, Car Loan">
+                </div>
+                <div class="form-group">
+                    <label>Subcategory</label>
+                    <input type="text" id="liabilityTemplateSubcategory" placeholder="e.g., Primary Home Loan, Vehicle Loan">
+                </div>
+                <div class="form-group">
+                    <label>Default Amount (₹)</label>
+                    <input type="number" step="0.01" id="liabilityTemplateAmount" placeholder="500000">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="liabilityTemplateDescription" placeholder="Brief description">
+                </div>
+                <button type="submit" class="btn-primary">Add Template</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Investment Modals -->
+    <div id="addRDModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addRDModal')">&times;</span>
+            <h2>Add RD Account</h2>
+            <form onsubmit="addRD(event)">
+                <div class="form-group">
+                    <label>Bank Name *</label>
+                    <input type="text" id="rdBankName" required placeholder="e.g., SBI, HDFC">
+                </div>
+                <div class="form-group">
+                    <label>Account Number</label>
+                    <input type="text" id="rdAccountNumber" placeholder="Account number">
+                </div>
+                <div class="form-group">
+                    <label>Monthly Amount (₹) *</label>
+                    <input type="number" step="0.01" id="rdMonthlyAmount" required placeholder="5000">
+                </div>
+                <div class="form-group">
+                    <label>Interest Rate (%) *</label>
+                    <input type="number" step="0.01" id="rdInterestRate" required placeholder="6.5">
+                </div>
+                <div class="form-group">
+                    <label>Tenure (Months) *</label>
+                    <input type="number" id="rdTenure" required placeholder="12">
+                </div>
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input type="date" id="rdStartDate" required>
+                </div>
+                <button type="submit" class="btn-primary">Add RD Account</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addChitModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addChitModal')">&times;</span>
+            <h2>Add Chit Fund</h2>
+            <form onsubmit="addChit(event)">
+                <div class="form-group">
+                    <label>Chit Name *</label>
+                    <input type="text" id="chitName" required placeholder="e.g., ABC Chit Fund">
+                </div>
+                <div class="form-group">
+                    <label>Organizer</label>
+                    <input type="text" id="chitOrganizer" placeholder="Organizer name">
+                </div>
+                <div class="form-group">
+                    <label>Total Value (₹) *</label>
+                    <input type="number" step="0.01" id="chitTotalValue" required placeholder="100000">
+                </div>
+                <div class="form-group">
+                    <label>Monthly Amount (₹) *</label>
+                    <input type="number" step="0.01" id="chitMonthlyAmount" required placeholder="5000">
+                </div>
+                <div class="form-group">
+                    <label>Total Months *</label>
+                    <input type="number" id="chitTotalMonths" required placeholder="20">
+                </div>
+                <button type="submit" class="btn-primary">Add Chit Fund</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addGoldChitModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addGoldChitModal')">&times;</span>
+            <h2>Add Gold Chit</h2>
+            <form onsubmit="addGoldChit(event)">
+                <div class="form-group">
+                    <label>Chit Name *</label>
+                    <input type="text" id="goldChitName" required placeholder="e.g., 10g Gold Chit">
+                </div>
+                <div class="form-group">
+                    <label>Jeweller</label>
+                    <input type="text" id="goldChitJeweller" placeholder="Jeweller name">
+                </div>
+                <div class="form-group">
+                    <label>Gold Weight (grams) *</label>
+                    <input type="number" step="0.01" id="goldChitWeight" required placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label>Monthly Amount (₹) *</label>
+                    <input type="number" step="0.01" id="goldChitMonthlyAmount" required placeholder="5000">
+                </div>
+                <div class="form-group">
+                    <label>Total Months *</label>
+                    <input type="number" id="goldChitTotalMonths" required placeholder="11">
+                </div>
+                <button type="submit" class="btn-primary">Add Gold Chit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js"></script>
+    <script src="js/templates.js"></script>
+    <script src="js/investments.js"></script>
+</body>
+</html>

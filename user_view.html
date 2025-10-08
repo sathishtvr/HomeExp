@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Dashboard - View Only</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="40%"><stop offset="0%" stop-color="%23fff" stop-opacity=".1"/><stop offset="100%" stop-color="%23fff" stop-opacity="0"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>');
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .card h3 {
+            color: #6b7280;
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        
+        .card .amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .card.net-worth .amount {
+            color: #2563eb;
+        }
+        
+        .card.assets .amount {
+            color: #10b981;
+        }
+        
+        .card.liabilities .amount {
+            color: #ef4444;
+        }
+        
+        .card.expenses .amount {
+            color: #f59e0b;
+        }
+        
+        .card .subtitle {
+            color: #9ca3af;
+            font-size: 0.9rem;
+        }
+        
+        .chart-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .chart-card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .chart-card h3 {
+            color: #374151;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+        
+        .data-table-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .table-tabs {
+            display: flex;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #f3f4f6;
+        }
+        
+        .table-tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .table-tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .data-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid #f3f4f6;
+            background: white;
+        }
+        
+        .data-table tr:hover td {
+            background: #f8fafc;
+        }
+        
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .amount {
+            font-weight: bold;
+        }
+        
+        .amount.positive {
+            color: #10b981;
+        }
+        
+        .amount.negative {
+            color: #ef4444;
+        }
+        
+        .amount.warning {
+            color: #f59e0b;
+        }
+        
+        .month-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .month-selector label {
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .month-selector input {
+            padding: 10px 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .month-selector input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+        
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .trend-up {
+            color: #10b981;
+        }
+        
+        .trend-down {
+            color: #ef4444;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+        
+        .modal {
+            display: flex;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+        
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        
+        @media (max-width: 768px) {
+            .chart-section {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-tabs {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Financial Dashboard</h1>
+            <p>Your complete financial overview at a glance</p>
+        </div>
+        
+        <div class="content">
+            <div class="month-selector">
+                <label for="monthSelect">📅 Select Month:</label>
+                <input type="month" id="monthSelect" onchange="updateDashboard()">
+                <button class="btn" onclick="showLoanCalculator()">🏦 Loan Calculator</button>
+                <div id="lastUpdated" class="trend-indicator"></div>
+            </div>
+            
+            <!-- Loan Calculator Modal -->
+            <div id="loanModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeLoanModal()">&times;</span>
+                    <h2>🏦 Smart Loan Calculator</h2>
+                    <form onsubmit="calculateLoan(event)">
+                        <div class="form-group">
+                            <label>💰 Loan Amount ($):</label>
+                            <input type="number" id="loanAmount" placeholder="50000" required>
+                        </div>
+                        <div class="form-group">
+                            <label>📊 Interest Rate (%):</label>
+                            <input type="number" step="0.01" id="interestRate" placeholder="5.5" required>
+                        </div>
+                        <div class="form-group">
+                            <label>📅 Loan Term (Years):</label>
+                            <input type="number" id="loanYears" placeholder="5" required>
+                        </div>
+                        <button type="submit" class="btn">Calculate & Get Tips</button>
+                    </form>
+                    <div id="loanResults" style="display: none;">
+                        <h3>📈 Loan Analysis</h3>
+                        <div id="loanDetails"></div>
+                        <h3>💡 Smart Tips to Close Loan Faster</h3>
+                        <div id="loanTips"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-grid" id="dashboardCards">
+                <div class="loading">Loading financial data...</div>
+            </div>
+            
+            <div class="chart-section">
+                <div class="chart-card">
+                    <h3>📈 Net Worth Trend</h3>
+                    <canvas id="netWorthChart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>🥧 Asset Distribution</h3>
+                    <canvas id="assetChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            
+            <div class="chart-section">
+                <div class="chart-card">
+                    <h3>💸 Expense Categories</h3>
+                    <canvas id="expenseChart" width="400" height="200"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>📊 Monthly Comparison</h3>
+                    <canvas id="monthlyChart" width="400" height="200"></canvas>
+                </div>
+            </div>
+            
+            <div class="data-table-section">
+                <div class="table-tabs">
+                    <button class="table-tab active" onclick="showTable('expenses')">💸 Recent Expenses</button>
+                    <button class="table-tab" onclick="showTable('assets')">🏦 Assets</button>
+                    <button class="table-tab" onclick="showTable('liabilities')">💳 Liabilities</button>
+                </div>
+                
+                <div id="expensesTable" class="table-content">
+                    <div class="loading">Loading expenses...</div>
+                </div>
+                
+                <div id="assetsTable" class="table-content" style="display: none;">
+                    <div class="loading">Loading assets...</div>
+                </div>
+                
+                <div id="liabilitiesTable" class="table-content" style="display: none;">
+                    <div class="loading">Loading liabilities...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        let charts = {};
+        
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set current month as default
+            const now = new Date();
+            const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            document.getElementById('monthSelect').value = currentMonth;
+            
+            updateDashboard();
+            loadTableData();
+        });
+        
+        async function updateDashboard() {
+            const month = document.getElementById('monthSelect').value;
+            
+            try {
+                // Load net worth data
+                const netWorthResponse = await fetch(`${API_BASE}/api/networth/${month}`);
+                const netWorthData = await netWorthResponse.json();
+                
+                // Load expenses for the month
+                const expensesResponse = await fetch(`${API_BASE}/api/expenses/total/${month}`);
+                const expensesData = await expensesResponse.json();
+                
+                // Update dashboard cards
+                updateDashboardCards(netWorthData, expensesData);
+                
+                // Update charts
+                await updateCharts(month);
+                
+                // Update last updated time
+                document.getElementById('lastUpdated').innerHTML = `
+                    <span class="trend-up">🔄 Updated: ${new Date().toLocaleTimeString()}</span>
+                `;
+                
+            } catch (error) {
+                console.error('Error updating dashboard:', error);
+                document.getElementById('dashboardCards').innerHTML = 
+                    '<div class="loading">Error loading data. Please check if the backend is running.</div>';
+            }
+        }
+        
+        function updateDashboardCards(netWorth, expenses) {
+            const cardsHtml = `
+                <div class="card net-worth">
+                    <h3>💰 Net Worth</h3>
+                    <div class="amount">$${netWorth.net_worth.toFixed(2)}</div>
+                    <div class="subtitle">Assets minus Liabilities</div>
+                </div>
+                <div class="card assets">
+                    <h3>🏦 Total Assets</h3>
+                    <div class="amount">$${netWorth.total_assets.toFixed(2)}</div>
+                    <div class="subtitle">Your wealth portfolio</div>
+                </div>
+                <div class="card liabilities">
+                    <h3>💳 Total Liabilities</h3>
+                    <div class="amount">$${netWorth.total_liabilities.toFixed(2)}</div>
+                    <div class="subtitle">Outstanding debts</div>
+                </div>
+                <div class="card expenses">
+                    <h3>💸 Monthly Expenses</h3>
+                    <div class="amount">$${expenses.total.toFixed(2)}</div>
+                    <div class="subtitle">This month's spending</div>
+                </div>
+            `;
+            
+            document.getElementById('dashboardCards').innerHTML = cardsHtml;
+        }
+        
+        async function updateCharts(currentMonth) {
+            try {
+                // Get data for multiple months for trends
+                const months = ['2024-01', '2024-02', '2024-03', '2024-04', '2024-05', '2024-06'];
+                const monthlyData = [];
+                
+                for (const month of months) {
+                    try {
+                        const netWorthResponse = await fetch(`${API_BASE}/api/networth/${month}`);
+                        const netWorthData = await netWorthResponse.json();
+                        
+                        const expensesResponse = await fetch(`${API_BASE}/api/expenses/total/${month}`);
+                        const expensesData = await expensesResponse.json();
+                        
+                        monthlyData.push({
+                            month: month,
+                            netWorth: netWorthData.net_worth,
+                            assets: netWorthData.total_assets,
+                            liabilities: netWorthData.total_liabilities,
+                            expenses: expensesData.total
+                        });
+                    } catch (e) {
+                        // Skip months with no data
+                    }
+                }
+                
+                // Create Net Worth Trend Chart
+                createNetWorthChart(monthlyData);
+                
+                // Create Asset Distribution Chart
+                await createAssetChart(currentMonth);
+                
+                // Create Expense Categories Chart
+                await createExpenseChart(currentMonth);
+                
+                // Create Monthly Comparison Chart
+                createMonthlyChart(monthlyData);
+                
+            } catch (error) {
+                console.error('Error updating charts:', error);
+            }
+        }
+        
+        function createNetWorthChart(data) {
+            const ctx = document.getElementById('netWorthChart').getContext('2d');
+            
+            if (charts.netWorth) {
+                charts.netWorth.destroy();
+            }
+            
+            charts.netWorth = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.map(d => d.month),
+                    datasets: [{
+                        label: 'Net Worth',
+                        data: data.map(d => d.netWorth),
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        async function createAssetChart(month) {
+            try {
+                const response = await fetch(`${API_BASE}/api/assets/month/${month}`);
+                const assets = await response.json();
+                
+                const categories = {};
+                assets.forEach(asset => {
+                    categories[asset.category] = (categories[asset.category] || 0) + asset.value;
+                });
+                
+                const ctx = document.getElementById('assetChart').getContext('2d');
+                
+                if (charts.assets) {
+                    charts.assets.destroy();
+                }
+                
+                charts.assets = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(categories),
+                        datasets: [{
+                            data: Object.values(categories),
+                            backgroundColor: [
+                                '#10b981',
+                                '#3b82f6',
+                                '#8b5cf6',
+                                '#f59e0b',
+                                '#ef4444',
+                                '#06b6d4'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating asset chart:', error);
+            }
+        }
+        
+        async function createExpenseChart(month) {
+            try {
+                const response = await fetch(`${API_BASE}/api/expenses/category/${month}`);
+                const expenses = await response.json();
+                
+                const ctx = document.getElementById('expenseChart').getContext('2d');
+                
+                if (charts.expenses) {
+                    charts.expenses.destroy();
+                }
+                
+                charts.expenses = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: expenses.map(e => e.category),
+                        datasets: [{
+                            label: 'Expenses',
+                            data: expenses.map(e => e.total),
+                            backgroundColor: '#f59e0b',
+                            borderColor: '#d97706',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating expense chart:', error);
+            }
+        }
+        
+        function createMonthlyChart(data) {
+            const ctx = document.getElementById('monthlyChart').getContext('2d');
+            
+            if (charts.monthly) {
+                charts.monthly.destroy();
+            }
+            
+            charts.monthly = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.month),
+                    datasets: [
+                        {
+                            label: 'Assets',
+                            data: data.map(d => d.assets),
+                            backgroundColor: '#10b981'
+                        },
+                        {
+                            label: 'Liabilities',
+                            data: data.map(d => d.liabilities),
+                            backgroundColor: '#ef4444'
+                        },
+                        {
+                            label: 'Expenses',
+                            data: data.map(d => d.expenses),
+                            backgroundColor: '#f59e0b'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function showTable(tableName) {
+            // Hide all tables
+            document.querySelectorAll('.table-content').forEach(table => {
+                table.style.display = 'none';
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.table-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected table
+            document.getElementById(tableName + 'Table').style.display = 'block';
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+        
+        async function loadTableData() {
+            await loadExpensesTable();
+            await loadAssetsTable();
+            await loadLiabilitiesTable();
+        }
+        
+        async function loadExpensesTable() {
+            try {
+                const response = await fetch(`${API_BASE}/api/expenses`);
+                const expenses = await response.json();
+                
+                const tableHtml = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${expenses.slice(0, 10).map(expense => `
+                                <tr>
+                                    <td>${expense.date}</td>
+                                    <td>${expense.category}</td>
+                                    <td>${expense.description}</td>
+                                    <td class="amount negative">$${expense.amount}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+                document.getElementById('expensesTable').innerHTML = tableHtml;
+            } catch (error) {
+                document.getElementById('expensesTable').innerHTML = '<div class="loading">Error loading expenses</div>';
+            }
+        }
+        
+        async function loadAssetsTable() {
+            try {
+                const response = await fetch(`${API_BASE}/api/assets`);
+                const assets = await response.json();
+                
+                const tableHtml = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Value</th>
+                                <th>Month</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${assets.map(asset => `
+                                <tr>
+                                    <td>${asset.name}</td>
+                                    <td>${asset.category}</td>
+                                    <td class="amount positive">$${asset.value}</td>
+                                    <td>${asset.month}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+                document.getElementById('assetsTable').innerHTML = tableHtml;
+            } catch (error) {
+                document.getElementById('assetsTable').innerHTML = '<div class="loading">Error loading assets</div>';
+            }
+        }
+        
+        async function loadLiabilitiesTable() {
+            try {
+                const response = await fetch(`${API_BASE}/api/liabilities`);
+                const liabilities = await response.json();
+                
+                const tableHtml = `
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Month</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${liabilities.map(liability => `
+                                <tr>
+                                    <td>${liability.name}</td>
+                                    <td>${liability.category}</td>
+                                    <td class="amount negative">$${liability.amount}</td>
+                                    <td>${liability.month}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+                
+                document.getElementById('liabilitiesTable').innerHTML = tableHtml;
+            } catch (error) {
+                document.getElementById('liabilitiesTable').innerHTML = '<div class="loading">Error loading liabilities</div>';
+            }
+        }
+        
+        // Loan Calculator Functions
+        function showLoanCalculator() {
+            document.getElementById('loanModal').style.display = 'flex';
+        }
+        
+        function closeLoanModal() {
+            document.getElementById('loanModal').style.display = 'none';
+            document.getElementById('loanResults').style.display = 'none';
+        }
+        
+        async function calculateLoan(event) {
+            event.preventDefault();
+            
+            const principal = parseFloat(document.getElementById('loanAmount').value);
+            const rate = parseFloat(document.getElementById('interestRate').value);
+            const years = parseInt(document.getElementById('loanYears').value);
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/loan/calculate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        principal: principal,
+                        rate: rate,
+                        months: years * 12
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Display loan details
+                document.getElementById('loanDetails').innerHTML = `
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div>
+                                <strong>💰 Monthly Payment:</strong><br>
+                                <span style="font-size: 1.5rem; color: #2563eb;">$${data.monthly_payment}</span>
+                            </div>
+                            <div>
+                                <strong>💸 Total Payment:</strong><br>
+                                <span style="font-size: 1.5rem; color: #ef4444;">$${data.total_payment}</span>
+                            </div>
+                            <div>
+                                <strong>📊 Total Interest:</strong><br>
+                                <span style="font-size: 1.5rem; color: #f59e0b;">$${data.total_interest}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Display smart tips
+                const tipsHtml = data.tips.map(tip => `
+                    <div style="background: white; border-left: 4px solid #10b981; padding: 15px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h4 style="color: #374151; margin-bottom: 8px;">${tip.title}</h4>
+                        <p style="color: #6b7280; margin-bottom: 8px;">${tip.description}</p>
+                        ${tip.savings ? `<div style="color: #10b981; font-weight: bold;">💰 Potential Savings: $${tip.savings}</div>` : ''}
+                        ${tip.potential_savings ? `<div style="color: #10b981; font-weight: bold;">💰 Potential Savings: $${tip.potential_savings}</div>` : ''}
+                        ${tip.impact ? `<div style="color: #2563eb; font-weight: bold;">⚡ Impact: ${tip.impact}</div>` : ''}
+                    </div>
+                `).join('');
+                
+                document.getElementById('loanTips').innerHTML = tipsHtml;
+                document.getElementById('loanResults').style.display = 'block';
+                
+            } catch (error) {
+                alert('Error calculating loan. Please check your inputs.');
+            }
+        }
+    </script>
+</body>
+</html>

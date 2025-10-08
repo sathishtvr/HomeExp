@@ -1,0 +1,3793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Finance Manager</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #2d3748;
+        }
+
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+            color: white;
+            padding: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-align: center;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-item {
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .nav-item:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: rgba(255,255,255,0.2);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .nav-item .icon {
+            font-size: 1.3rem;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .top-bar h1 {
+            font-size: 2rem;
+            color: #1a202c;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-icon {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.3s;
+        }
+
+        .btn-icon:hover {
+            background: #2563eb;
+            transform: scale(1.1);
+        }
+
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .stat-card.blue { border-left: 4px solid #3b82f6; }
+        .stat-card.green { border-left: 4px solid #10b981; }
+        .stat-card.red { border-left: 4px solid #ef4444; }
+        .stat-card.orange { border-left: 4px solid #f59e0b; }
+
+        .stat-icon {
+            font-size: 3rem;
+            opacity: 0.8;
+        }
+
+        .stat-info h3 {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 5px;
+        }
+
+        .stat-change {
+            font-size: 0.85rem;
+            color: #6b7280;
+        }
+
+        .stat-change.positive { color: #10b981; }
+        .stat-change.negative { color: #ef4444; }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 20px;
+            color: #1a202c;
+            font-size: 1.2rem;
+        }
+
+        .financial-health {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        }
+
+        .financial-health h3 {
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .health-score-container {
+            display: flex;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .score-value {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+
+        .score-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+
+        .recommendations {
+            flex: 1;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            font-size: 1.8rem;
+            color: #1a202c;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-large {
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            width: 100%;
+        }
+
+        .data-table-container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+            overflow: hidden;
+        }
+
+        .table-controls {
+            padding: 15px 20px;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .search-box {
+            padding: 8px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            min-width: 250px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .table-info {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .data-table th {
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .calculator-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.07);
+        }
+
+        .calculator-container h2 {
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+        }
+
+        .calculator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        .calculator-input {
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .calculator-results {
+            padding: 20px;
+        }
+
+        .calculator-results h3 {
+            margin-bottom: 15px;
+            color: #1a202c;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            animation: slideIn 0.3s;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+            transition: color 0.3s;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        @media (max-width: 1024px) {
+            .calculator-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .nav-menu {
+                display: flex;
+                overflow-x: auto;
+                gap: 10px;
+            }
+            
+            .nav-item {
+                white-space: nowrap;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .health-score-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <nav class="sidebar">
+            <div class="logo">💰 FinancePro</div>
+            <ul class="nav-menu">
+                <li class="nav-item active" onclick="showSection('dashboard')">
+                    <span class="icon">📊</span> Dashboard
+                </li>
+                <li class="nav-item" onclick="showSection('expenses')">
+                    <span class="icon">💸</span> Expenses
+                </li>
+                <li class="nav-item" onclick="showSection('assets')">
+                    <span class="icon">🏦</span> Assets
+                </li>
+                <li class="nav-item" onclick="showSection('liabilities')">
+                    <span class="icon">💳</span> Liabilities
+                </li>
+                <li class="nav-item" onclick="showSection('loan-calculator')">
+                    <span class="icon">🧮</span> Loan Calculator
+                </li>
+                <li class="nav-item" onclick="showSection('reports')">
+                    <span class="icon">📈</span> Reports
+                </li>
+                <li class="nav-item" onclick="showSection('ai-insights')">
+                    <span class="icon">🤖</span> AI Insights
+                </li>
+                <li class="nav-item" onclick="showSection('templates')">
+                    <span class="icon">📋</span> Templates
+                </li>
+                <li class="nav-item" onclick="showSection('investments')">
+                    <span class="icon">💰</span> Investments
+                </li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header class="top-bar">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="user-info">
+                    <span id="currentDate"></span>
+                    <button class="btn-icon" onclick="refreshData()">🔄</button>
+                </div>
+            </header>
+
+            <!-- Dashboard Section -->
+            <section id="dashboard" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card blue">
+                        <div class="stat-icon">💰</div>
+                        <div class="stat-info">
+                            <h3>Net Worth</h3>
+                            <p class="stat-value" id="netWorth">$0.00</p>
+                            <span class="stat-change positive">+12.5%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-icon">🏦</div>
+                        <div class="stat-info">
+                            <h3>Total Assets</h3>
+                            <p class="stat-value" id="totalAssets">$0.00</p>
+                            <span class="stat-change positive">+8.3%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-icon">💳</div>
+                        <div class="stat-info">
+                            <h3>Total Liabilities</h3>
+                            <p class="stat-value" id="totalLiabilities">$0.00</p>
+                            <span class="stat-change negative">-5.2%</span>
+                        </div>
+                    </div>
+                    <div class="stat-card orange">
+                        <div class="stat-icon">💸</div>
+                        <div class="stat-info">
+                            <h3>Monthly Expenses</h3>
+                            <p class="stat-value" id="monthlyExpenses">$0.00</p>
+                            <span class="stat-change">This month</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Net Worth Trend</h3>
+                        <canvas id="netWorthChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <h3>Expense Breakdown</h3>
+                        <canvas id="expenseChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="financial-health">
+                    <h3>Financial Health Score</h3>
+                    <div class="health-score-container">
+                        <div class="score-circle" id="healthScore">
+                            <span class="score-value">85</span>
+                            <span class="score-label">Good</span>
+                        </div>
+                        <div class="recommendations" id="recommendations"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Expenses Section -->
+            <section id="expenses" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Expenses</h2>
+                    <button class="btn-primary" onclick="showAddExpenseModal()">+ Add Expense</button>
+                </div>
+                <div class="data-table-container">
+                    <div class="table-controls">
+                        <input type="text" class="search-box" placeholder="🔍 Search expenses..." onkeyup="searchTable('expensesTable', this.value)">
+                        <span class="table-info" id="expensesInfo">Showing all expenses</span>
+                    </div>
+                    <table class="data-table" id="expensesTable">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Assets Section -->
+            <section id="assets" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Assets</h2>
+                    <button class="btn-primary" onclick="showAddAssetModal()">+ Add Asset</button>
+                </div>
+                <div class="data-table-container">
+                    <div class="table-controls">
+                        <input type="text" class="search-box" placeholder="🔍 Search assets..." onkeyup="searchTable('assetsTable', this.value)">
+                        <span class="table-info" id="assetsInfo">Showing all assets</span>
+                    </div>
+                    <table class="data-table" id="assetsTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Value</th>
+                                <th>Month</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetsTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Liabilities Section -->
+            <section id="liabilities" class="content-section">
+                <div class="section-header">
+                    <h2>Manage Liabilities</h2>
+                    <button class="btn-primary" onclick="showAddLiabilityModal()">+ Add Liability</button>
+                </div>
+                <div class="data-table-container">
+                    <div class="table-controls">
+                        <input type="text" class="search-box" placeholder="🔍 Search liabilities..." onkeyup="searchTable('liabilitiesTable', this.value)">
+                        <span class="table-info" id="liabilitiesInfo">Showing all liabilities</span>
+                    </div>
+                    <table class="data-table" id="liabilitiesTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Month</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="liabilitiesTableBody"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Loan Calculator Section -->
+            <section id="loan-calculator" class="content-section">
+                <div class="calculator-container">
+                    <h2>🏦 Smart Loan Calculator</h2>
+                    <div class="calculator-grid">
+                        <div class="calculator-input">
+                            <form id="loanForm" onsubmit="calculateLoan(event)">
+                                <div class="form-group">
+                                    <label>💰 Loan Amount (₹)</label>
+                                    <input type="number" id="loanAmount" placeholder="500000" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>📊 Interest Rate (%)</label>
+                                    <input type="number" step="0.01" id="interestRate" placeholder="5.5" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>📅 Loan Term (Years)</label>
+                                    <input type="number" id="loanYears" placeholder="5" required>
+                                </div>
+                                <button type="submit" class="btn-primary btn-large">Calculate & Get Tips</button>
+                            </form>
+                        </div>
+                        <div class="calculator-results" id="loanResults">
+                            <h3>Loan Analysis</h3>
+                            <div id="loanDetails"></div>
+                            <h3>💡 Smart Tips to Close Loan Faster</h3>
+                            <div id="loanTips"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports" class="content-section">
+                <h2>📊 Financial Reports</h2>
+                
+                <!-- Report Type Selector -->
+                <div style="background: white; padding: 20px; border-radius: 15px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+                    <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+                        <button class="btn-primary" onclick="showReportType('yearly')" id="btnYearly">📅 Yearly Report</button>
+                        <button class="btn-primary" onclick="showReportType('monthly')" id="btnMonthly">📆 Monthly Report</button>
+                        <button class="btn-primary" onclick="showReportType('weekly')" id="btnWeekly">📋 Weekly Report</button>
+                        
+                        <div id="reportFilters" style="display: flex; gap: 10px; margin-left: auto;">
+                            <!-- Filters will be added dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Yearly Report -->
+                <div id="yearlyReport" class="report-section" style="display: none;">
+                    <div class="chart-card">
+                        <h3>📈 Yearly Overview</h3>
+                        <canvas id="yearlyChart" width="400" height="200"></canvas>
+                    </div>
+                    <div id="yearlySummary"></div>
+                    <div id="yearlyTable"></div>
+                </div>
+
+                <!-- Monthly Report -->
+                <div id="monthlyReport" class="report-section" style="display: none;">
+                    <div class="chart-card">
+                        <h3>📊 Monthly Breakdown</h3>
+                        <canvas id="monthlyChart" width="400" height="200"></canvas>
+                    </div>
+                    <div id="monthlySummary"></div>
+                    <div id="monthlyDetails"></div>
+                </div>
+
+                <!-- Weekly Report -->
+                <div id="weeklyReport" class="report-section" style="display: none;">
+                    <div class="chart-card">
+                        <h3>📋 Weekly Analysis</h3>
+                        <canvas id="weeklyChart" width="400" height="200"></canvas>
+                    </div>
+                    <div id="weeklySummary"></div>
+                    <div id="weeklyDetails"></div>
+                </div>
+            </section>
+
+            <!-- AI Insights Section -->
+            <section id="ai-insights" class="content-section">
+                <h2>🤖 AI-Powered Financial Insights</h2>
+                
+                <!-- Monthly Report & Predictions -->
+                <div class="chart-card" style="margin-bottom: 30px;">
+                    <h3>📊 Monthly Report & Future Predictions</h3>
+                    <div id="monthlyReportChart" style="margin-bottom: 20px;">
+                        <canvas id="predictionChart" width="400" height="200"></canvas>
+                    </div>
+                    <div id="insightsContainer"></div>
+                </div>
+
+                <!-- Investment Suggestions -->
+                <div class="chart-card" style="margin-bottom: 30px;">
+                    <h3>💰 AI Investment Suggestions</h3>
+                    <div id="investmentSuggestions"></div>
+                </div>
+
+                <!-- Stock & Mutual Fund Recommendations -->
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <h3>📈 Equity Recommendations</h3>
+                        <div id="equityRecommendations"></div>
+                    </div>
+                    <div class="report-card">
+                        <h3>🏦 Debt Recommendations</h3>
+                        <div id="debtRecommendations"></div>
+                    </div>
+                </div>
+
+                <!-- Tax Saving & Gold -->
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <h3>💰 Tax Saving Options</h3>
+                        <div id="taxSavingOptions"></div>
+                    </div>
+                    <div class="report-card">
+                        <h3>🪙 Gold Investment</h3>
+                        <div id="goldInvestment"></div>
+                    </div>
+                </div>
+
+                <!-- Budget Analysis -->
+                <div class="chart-card">
+                    <h3>📋 Budget Analysis & Recommendations</h3>
+                    <div id="budgetAnalysis"></div>
+                </div>
+
+                <!-- Quick Loan Closure Strategies -->
+                <div class="chart-card" style="margin-top: 30px;">
+                    <h3>🚀 Quick Loan Closure Strategies</h3>
+                    <form id="loanClosureForm" onsubmit="getQuickLoanStrategies(event)" style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                            <div class="form-group">
+                                <label>Remaining Loan Amount (₹)</label>
+                                <input type="number" id="closureLoanAmount" placeholder="500000" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Interest Rate (%)</label>
+                                <input type="number" step="0.01" id="closureInterestRate" placeholder="8.5" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Remaining Months</label>
+                                <input type="number" id="closureRemainingMonths" placeholder="36" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Monthly Income (₹)</label>
+                                <input type="number" id="closureMonthlyIncome" placeholder="50000" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary" style="margin-top: 10px;">Get Closure Strategies</button>
+                    </form>
+                    <div id="loanClosureStrategies"></div>
+                </div>
+
+                <!-- Seasonal Stock Recommendations -->
+                <div class="chart-card" style="margin-top: 30px;">
+                    <h3>📈 Seasonal Stock Recommendations (AI-Powered)</h3>
+                    <div id="seasonalStocks"></div>
+                </div>
+
+                <!-- Comprehensive Stock Analysis -->
+                <div class="chart-card" style="margin-top: 30px;">
+                    <h3>🎯 AI Stock Analysis - 20 Stocks Under ₹1,000</h3>
+                    <p style="color: #6b7280; margin-bottom: 20px;">Comprehensive analysis with P/E Ratio, ROE, Dividend Yield, and expert recommendations</p>
+                    
+                    <!-- Tab Navigation -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                        <button class="btn-primary" onclick="showStockTab('all')" id="btnAllStocks">All Stocks</button>
+                        <button class="btn-primary" onclick="showStockTab('strong-buy')" id="btnStrongBuy">⭐ Strong Buy</button>
+                        <button class="btn-primary" onclick="showStockTab('buy')" id="btnBuy">✅ Buy</button>
+                        <button class="btn-primary" onclick="showStockTab('best-pe')" id="btnBestPE">📊 Best P/E</button>
+                        <button class="btn-primary" onclick="showStockTab('best-dividend')" id="btnBestDividend">💰 Best Dividend</button>
+                        <button class="btn-primary" onclick="showStockTab('best-roe')" id="btnBestROE">🚀 Best ROE</button>
+                    </div>
+
+                    <div id="stockAnalysisContent"></div>
+                </div>
+            </section>
+
+            <!-- Templates Section -->
+            <section id="templates" class="content-section">
+                <h2>📋 Financial Templates</h2>
+                <p style="color: #6b7280; margin-bottom: 20px;">Manage your financial categories with default amounts and descriptions</p>
+                
+                <!-- Tab Navigation -->
+                <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                    <button class="btn-primary" onclick="showTemplateTab('expense')" id="btnExpenseTemplates">💸 Expense</button>
+                    <button class="btn-primary" onclick="showTemplateTab('income')" id="btnIncomeTemplates">💰 Income</button>
+                    <button class="btn-primary" onclick="showTemplateTab('asset')" id="btnAssetTemplates">🏦 Asset</button>
+                    <button class="btn-primary" onclick="showTemplateTab('liability')" id="btnLiabilityTemplates">💳 Liability</button>
+                </div>
+
+                <!-- Expense Templates -->
+                <div id="expenseTemplatesSection" class="template-section">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>💸 Expense Templates</h3>
+                        <button class="btn-primary" onclick="openModal('addExpenseTemplateModal')">+ Add Template</button>
+                    </div>
+                    <div id="expenseTemplatesList"></div>
+                </div>
+
+                <!-- Income Templates -->
+                <div id="incomeTemplatesSection" class="template-section" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>💰 Income Templates</h3>
+                        <button class="btn-primary" onclick="openModal('addIncomeTemplateModal')">+ Add Template</button>
+                    </div>
+                    <div id="incomeTemplatesList"></div>
+                </div>
+
+                <!-- Asset Templates -->
+                <div id="assetTemplatesSection" class="template-section" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>🏦 Asset Templates</h3>
+                        <button class="btn-primary" onclick="openModal('addAssetTemplateModal')">+ Add Template</button>
+                    </div>
+                    <div id="assetTemplatesList"></div>
+                </div>
+
+                <!-- Liability Templates -->
+                <div id="liabilityTemplatesSection" class="template-section" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3>💳 Liability Templates</h3>
+                        <button class="btn-primary" onclick="openModal('addLiabilityTemplateModal')">+ Add Template</button>
+                    </div>
+                    <div id="liabilityTemplatesList"></div>
+                </div>
+            </section>
+
+            <!-- Investments Section (RD, Chit, Gold Chit) -->
+            <section id="investments" class="content-section">
+                <h2>💰 Investments Tracker</h2>
+                <p style="color: #6b7280; margin-bottom: 20px;">Track RD, Chit Funds, and Gold Chit payments</p>
+                
+                <!-- Tab Navigation -->
+                <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                    <button class="btn-primary" onclick="showInvestmentTab('rd')" id="btnRD">🏦 RD</button>
+                    <button class="btn-primary" onclick="showInvestmentTab('chit')" id="btnChit">💎 Chit Funds</button>
+                    <button class="btn-primary" onclick="showInvestmentTab('gold-chit')" id="btnGoldChit">🪙 Gold Chit</button>
+                </div>
+
+                <!-- RD Section -->
+                <div id="rdSection" class="investment-section">
+                    <button class="btn-primary" onclick="openModal('addRDModal')" style="margin-bottom: 20px;">+ Add RD Account</button>
+                    <div id="rdList"></div>
+                </div>
+
+                <!-- Chit Funds Section -->
+                <div id="chitSection" class="investment-section" style="display: none;">
+                    <button class="btn-primary" onclick="openModal('addChitModal')" style="margin-bottom: 20px;">+ Add Chit Fund</button>
+                    <div id="chitList"></div>
+                </div>
+
+                <!-- Gold Chit Section -->
+                <div id="goldChitSection" class="investment-section" style="display: none;">
+                    <button class="btn-primary" onclick="openModal('addGoldChitModal')" style="margin-bottom: 20px;">+ Add Gold Chit</button>
+                    <div id="goldChitList"></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div id="addExpenseModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addExpenseModal')">&times;</span>
+            <h2>Add Expense</h2>
+            <form onsubmit="addExpense(event)">
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="expenseCategory" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white;">
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="expenseDescription" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" step="0.01" id="expenseAmount" required>
+                </div>
+                <div class="form-group">
+                    <label>Date</label>
+                    <input type="date" id="expenseDate" required>
+                </div>
+                <button type="submit" class="btn-primary">Add Expense</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addAssetModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addAssetModal')">&times;</span>
+            <h2>Add Asset</h2>
+            <form onsubmit="addAsset(event)">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="assetName" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="assetCategory" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white;">
+                        <option value="">Select Category</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Value</label>
+                    <input type="number" step="0.01" id="assetValue" required>
+                </div>
+                <div class="form-group">
+                    <label>Month</label>
+                    <input type="month" id="assetMonth" required>
+                </div>
+                <button type="submit" class="btn-primary">Add Asset</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addLiabilityModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addLiabilityModal')">&times;</span>
+            <h2>Add Liability</h2>
+            <form onsubmit="addLiability(event)">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="liabilityName" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="liabilityCategory" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; background: white;">
+                        <option value="">Select Type</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Amount</label>
+                    <input type="number" step="0.01" id="liabilityAmount" required>
+                </div>
+                <div class="form-group">
+                    <label>Month</label>
+                    <input type="month" id="liabilityMonth" required>
+                </div>
+                <button type="submit" class="btn-primary">Add Liability</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- RD Modal -->
+    <div id="addRDModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addRDModal')">&times;</span>
+            <h2>Add RD Account</h2>
+            <form onsubmit="addRD(event)">
+                <div class="form-group">
+                    <label>Bank Name *</label>
+                    <input type="text" id="rdBankName" required placeholder="e.g., SBI, HDFC">
+                </div>
+                <div class="form-group">
+                    <label>Account Number</label>
+                    <input type="text" id="rdAccountNumber" placeholder="RD Account Number">
+                </div>
+                <div class="form-group">
+                    <label>Monthly Deposit Amount (₹) *</label>
+                    <input type="number" step="0.01" id="rdMonthlyAmount" required placeholder="5000">
+                </div>
+                <div class="form-group">
+                    <label>Interest Rate (%) *</label>
+                    <input type="number" step="0.01" id="rdInterestRate" required placeholder="6.5">
+                </div>
+                <div class="form-group">
+                    <label>Tenure (Months) *</label>
+                    <input type="number" id="rdTenure" required placeholder="12">
+                </div>
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input type="date" id="rdStartDate" required>
+                </div>
+                <button type="submit" class="btn-primary">Add RD</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Chit Fund Modal -->
+    <div id="addChitModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addChitModal')">&times;</span>
+            <h2>Add Chit Fund</h2>
+            <form onsubmit="addChit(event)">
+                <div class="form-group">
+                    <label>Chit Name *</label>
+                    <input type="text" id="chitName" required placeholder="e.g., ABC Chit Fund">
+                </div>
+                <div class="form-group">
+                    <label>Total Chit Value (₹) *</label>
+                    <input type="number" step="0.01" id="chitTotalValue" required placeholder="100000">
+                </div>
+                <div class="form-group">
+                    <label>Monthly Contribution (₹) *</label>
+                    <input type="number" step="0.01" id="chitMonthlyAmount" required placeholder="5000">
+                </div>
+                <div class="form-group">
+                    <label>Total Months *</label>
+                    <input type="number" id="chitTotalMonths" required placeholder="20">
+                </div>
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input type="date" id="chitStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Organizer Name</label>
+                    <input type="text" id="chitOrganizer" placeholder="Chit organizer name">
+                </div>
+                <button type="submit" class="btn-primary">Add Chit Fund</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Gold Chit Modal -->
+    <div id="addGoldChitModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addGoldChitModal')">&times;</span>
+            <h2>Add Gold Chit</h2>
+            <form onsubmit="addGoldChit(event)">
+                <div class="form-group">
+                    <label>Gold Chit Name *</label>
+                    <input type="text" id="goldChitName" required placeholder="e.g., 10g Gold Chit">
+                </div>
+                <div class="form-group">
+                    <label>Gold Weight (grams) *</label>
+                    <input type="number" step="0.01" id="goldWeight" required placeholder="10">
+                </div>
+                <div class="form-group">
+                    <label>Monthly Payment (₹) *</label>
+                    <input type="number" step="0.01" id="goldChitMonthlyAmount" required placeholder="5000">
+                </div>
+                <div class="form-group">
+                    <label>Total Months *</label>
+                    <input type="number" id="goldChitTotalMonths" required placeholder="11">
+                </div>
+                <div class="form-group">
+                    <label>Start Date *</label>
+                    <input type="date" id="goldChitStartDate" required>
+                </div>
+                <div class="form-group">
+                    <label>Jeweller Name</label>
+                    <input type="text" id="goldChitJeweller" placeholder="Jewellery shop name">
+                </div>
+                <button type="submit" class="btn-primary">Add Gold Chit</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Template Modals -->
+    <div id="addExpenseTemplateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addExpenseTemplateModal')">&times;</span>
+            <h2>Add Expense Template</h2>
+            <form onsubmit="addExpenseTemplate(event)">
+                <div class="form-group">
+                    <label>Category *</label>
+                    <input type="text" id="expenseTemplateCategory" required placeholder="e.g., Housing, Food, Transportation">
+                </div>
+                <div class="form-group">
+                    <label>Subcategory</label>
+                    <input type="text" id="expenseTemplateSubcategory" placeholder="e.g., Rent, Groceries, Fuel">
+                </div>
+                <div class="form-group">
+                    <label>Default Amount (₹)</label>
+                    <input type="number" step="0.01" id="expenseTemplateAmount" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="expenseTemplateDescription" placeholder="Brief description">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="expenseTemplateRecurring">
+                        Recurring (Monthly)
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary">Add Template</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="addIncomeTemplateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addIncomeTemplateModal')">&times;</span>
+            <h2>Add Income Template</h2>
+            <form onsubmit="addIncomeTemplate(event)">
+                <div class="form-group">
+                    <label>Category *</label>
+                    <input type="text" id="incomeTemplateCategory" required placeholder="e.g., Salary, Business, Investment">
+                </div>
+                <div class="form-group">
+                    <label>Subcategory</label>
+                    <input type="text" id="incomeTemplateSubcategory" placeholder="e.g., Basic Salary, Bonus, Dividend">
+                </div>
+                <div class="form-group">
+                    <label>Default Amount (₹)</label>
+                    <input type="number" step="0.01" id="incomeTemplateAmount" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="incomeTemplateDescription" placeholder="Brief description">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="incomeTemplateRecurring" checked>
+                        Recurring (Monthly)
+                    </label>
+                </div>
+                <button type="submit" class="btn-primary">Add Template</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Asset Template Modal -->
+    <div id="addAssetTemplateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addAssetTemplateModal')">&times;</span>
+            <h2>Add Asset Template</h2>
+            <form onsubmit="addAssetTemplate(event)">
+                <div class="form-group">
+                    <label>Category *</label>
+                    <input type="text" id="assetTemplateCategory" required placeholder="e.g., Savings Account, Fixed Deposit">
+                </div>
+                <div class="form-group">
+                    <label>Subcategory</label>
+                    <input type="text" id="assetTemplateSubcategory" placeholder="e.g., Primary Savings, Emergency Fund">
+                </div>
+                <div class="form-group">
+                    <label>Default Amount (₹)</label>
+                    <input type="number" step="0.01" id="assetTemplateAmount" placeholder="50000">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="assetTemplateDescription" placeholder="Brief description">
+                </div>
+                <button type="submit" class="btn-primary">Add Template</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liability Template Modal -->
+    <div id="addLiabilityTemplateModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('addLiabilityTemplateModal')">&times;</span>
+            <h2>Add Liability Template</h2>
+            <form onsubmit="addLiabilityTemplate(event)">
+                <div class="form-group">
+                    <label>Category *</label>
+                    <input type="text" id="liabilityTemplateCategory" required placeholder="e.g., Home Loan, Car Loan">
+                </div>
+                <div class="form-group">
+                    <label>Subcategory</label>
+                    <input type="text" id="liabilityTemplateSubcategory" placeholder="e.g., Primary Home Loan, Vehicle Loan">
+                </div>
+                <div class="form-group">
+                    <label>Default Amount (₹)</label>
+                    <input type="number" step="0.01" id="liabilityTemplateAmount" placeholder="500000">
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <input type="text" id="liabilityTemplateDescription" placeholder="Brief description">
+                </div>
+                <button type="submit" class="btn-primary">Add Template</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        let charts = {};
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setCurrentDate();
+            loadDashboard();
+        });
+
+        function initializeApp() {
+            const now = new Date();
+            const currentDate = now.toISOString().split('T')[0];
+            const currentMonth = now.toISOString().slice(0, 7);
+            
+            document.querySelectorAll('input[type="date"]').forEach(input => {
+                input.value = currentDate;
+            });
+            
+            document.querySelectorAll('input[type="month"]').forEach(input => {
+                input.value = currentMonth;
+            });
+        }
+
+        function setCurrentDate() {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDate').textContent = now.toLocaleDateString('en-US', options);
+        }
+
+        function showSection(sectionId) {
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            
+            document.getElementById(sectionId).classList.add('active');
+            event.target.closest('.nav-item').classList.add('active');
+            
+            const titles = {
+                'dashboard': 'Dashboard',
+                'expenses': 'Expenses',
+                'assets': 'Assets',
+                'liabilities': 'Liabilities',
+                'loan-calculator': 'Loan Calculator',
+                'reports': 'Reports',
+                'ai-insights': 'AI Insights',
+                'templates': 'Templates',
+                'investments': 'Investments'
+            };
+            document.getElementById('pageTitle').textContent = titles[sectionId];
+            
+            if (sectionId === 'dashboard') loadDashboard();
+            if (sectionId === 'expenses') {
+                loadExpenses();
+                loadExpenseCategories();
+            }
+            if (sectionId === 'assets') {
+                loadAssets();
+                loadAssetCategories();
+            }
+            if (sectionId === 'liabilities') {
+                loadLiabilities();
+                loadLiabilityCategories();
+            }
+            if (sectionId === 'reports') showReportType('yearly');
+            if (sectionId === 'ai-insights') loadAIInsights();
+            if (sectionId === 'templates') showTemplateTab('expense');
+            if (sectionId === 'investments') showInvestmentTab('rd');
+        }
+
+        async function loadDashboard() {
+            try {
+                const now = new Date();
+                const currentMonth = now.toISOString().slice(0, 7);
+                
+                const netWorthResponse = await fetch(`${API_BASE}/api/networth/${currentMonth}`);
+                const netWorthData = await netWorthResponse.json();
+                
+                const expensesResponse = await fetch(`${API_BASE}/api/expenses/total/${currentMonth}`);
+                const expensesData = await expensesResponse.json();
+                
+                // Update with INR symbol and ensure values are displayed
+                const netWorth = netWorthData.net_worth || 0;
+                const totalAssets = netWorthData.total_assets || 0;
+                const totalLiabilities = netWorthData.total_liabilities || 0;
+                const monthlyExpenses = expensesData.total || 0;
+                
+                document.getElementById('netWorth').textContent = `₹${netWorth.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('totalAssets').textContent = `₹${totalAssets.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('totalLiabilities').textContent = `₹${totalLiabilities.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                document.getElementById('monthlyExpenses').textContent = `₹${monthlyExpenses.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+                
+                await loadCharts();
+                await loadFinancialHealth();
+                
+            } catch (error) {
+                console.error('Error loading dashboard:', error);
+                // Set default values if API fails
+                document.getElementById('netWorth').textContent = '₹0.00';
+                document.getElementById('totalAssets').textContent = '₹0.00';
+                document.getElementById('totalLiabilities').textContent = '₹0.00';
+                document.getElementById('monthlyExpenses').textContent = '₹0.00';
+            }
+        }
+
+        async function loadCharts() {
+            try {
+                const months = [];
+                const now = new Date();
+                for (let i = 5; i >= 0; i--) {
+                    const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                    months.push(date.toISOString().slice(0, 7));
+                }
+                
+                const monthlyData = [];
+                for (const month of months) {
+                    try {
+                        const netWorthResponse = await fetch(`${API_BASE}/api/networth/${month}`);
+                        const netWorthData = await netWorthResponse.json();
+                        monthlyData.push({ month: month, netWorth: netWorthData.net_worth });
+                    } catch (e) {
+                        monthlyData.push({ month: month, netWorth: 0 });
+                    }
+                }
+                
+                const netWorthCtx = document.getElementById('netWorthChart').getContext('2d');
+                if (charts.netWorth) charts.netWorth.destroy();
+                
+                charts.netWorth = new Chart(netWorthCtx, {
+                    type: 'line',
+                    data: {
+                        labels: monthlyData.map(d => d.month),
+                        datasets: [{
+                            label: 'Net Worth',
+                            data: monthlyData.map(d => d.netWorth),
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₹' + value.toLocaleString('en-IN');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                const currentMonth = new Date().toISOString().slice(0, 7);
+                const expensesResponse = await fetch(`${API_BASE}/api/expenses/category/${currentMonth}`);
+                const expensesData = await expensesResponse.json();
+                
+                const expenseCtx = document.getElementById('expenseChart').getContext('2d');
+                if (charts.expense) charts.expense.destroy();
+                
+                charts.expense = new Chart(expenseCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: expensesData.map(e => e.category),
+                        datasets: [{
+                            data: expensesData.map(e => e.total),
+                            backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        plugins: { legend: { position: 'bottom' } }
+                    }
+                });
+                
+            } catch (error) {
+                console.error('Error loading charts:', error);
+            }
+        }
+
+        async function loadFinancialHealth() {
+            try {
+                const response = await fetch(`${API_BASE}/api/financial-health`);
+                const data = await response.json();
+                
+                document.querySelector('.score-value').textContent = data.score;
+                
+                if (data.score >= 80) {
+                    document.querySelector('.score-label').textContent = 'Excellent';
+                } else if (data.score >= 60) {
+                    document.querySelector('.score-label').textContent = 'Good';
+                } else if (data.score >= 40) {
+                    document.querySelector('.score-label').textContent = 'Fair';
+                } else {
+                    document.querySelector('.score-label').textContent = 'Needs Work';
+                }
+                
+                const recommendationsHtml = data.recommendations.map(rec => `
+                    <div style="padding: 10px; margin: 5px 0; background: #f8fafc; border-left: 3px solid #667eea; border-radius: 5px;">
+                        ${rec}
+                    </div>
+                `).join('');
+                
+                document.getElementById('recommendations').innerHTML = recommendationsHtml || '<p>Great job! Keep up the good work!</p>';
+                
+            } catch (error) {
+                console.error('Error loading financial health:', error);
+            }
+        }
+
+        async function loadExpenses() {
+            try {
+                const response = await fetch(`${API_BASE}/api/expenses`);
+                const expenses = await response.json();
+                
+                const tbody = document.getElementById('expensesTableBody');
+                tbody.innerHTML = expenses.map(expense => `
+                    <tr>
+                        <td>${expense.date}</td>
+                        <td>${expense.category}</td>
+                        <td>${expense.description}</td>
+                        <td style="color: #ef4444; font-weight: bold;">₹${parseFloat(expense.amount).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td>
+                            <button onclick="editExpense(${expense.id}, '${expense.category}', '${expense.description}', ${expense.amount}, '${expense.date}')" style="background: #f59e0b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 5px;">✏️ Edit</button>
+                            <button onclick="deleteExpense(${expense.id})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">🗑️ Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading expenses:', error);
+            }
+        }
+
+        async function addExpense(event) {
+            event.preventDefault();
+            
+            const data = {
+                category: document.getElementById('expenseCategory').value,
+                description: document.getElementById('expenseDescription').value,
+                amount: parseFloat(document.getElementById('expenseAmount').value),
+                date: document.getElementById('expenseDate').value
+            };
+            
+            try {
+                let response;
+                if (currentEditId && currentEditType === 'expense') {
+                    // Update existing expense
+                    response = await fetch(`${API_BASE}/api/admin/edit/expense/${currentEditId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (response.ok) {
+                        alert('✅ Expense updated successfully!');
+                        currentEditId = null;
+                        currentEditType = null;
+                    }
+                } else {
+                    // Add new expense
+                    response = await fetch(`${API_BASE}/api/expenses`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (response.ok) {
+                        alert('✅ Expense added successfully!');
+                    }
+                }
+                
+                if (response.ok) {
+                    closeModal('addExpenseModal');
+                    document.querySelector('#addExpenseModal h2').textContent = 'Add Expense';
+                    document.querySelector('#addExpenseModal button[type="submit"]').textContent = 'Add Expense';
+                    loadExpenses();
+                    loadDashboard();
+                }
+            } catch (error) {
+                alert('❌ Error saving expense');
+            }
+        }
+
+        async function deleteExpense(id) {
+            if (!confirm('Are you sure you want to delete this expense?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/delete/expenses/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadExpenses();
+                    loadDashboard();
+                }
+            } catch (error) {
+                alert('❌ Error deleting expense');
+            }
+        }
+
+        async function loadAssets() {
+            try {
+                const response = await fetch(`${API_BASE}/api/assets`);
+                const assets = await response.json();
+                
+                const tbody = document.getElementById('assetsTableBody');
+                tbody.innerHTML = assets.map(asset => `
+                    <tr>
+                        <td>${asset.name}</td>
+                        <td>${asset.category}</td>
+                        <td style="color: #10b981; font-weight: bold;">₹${parseFloat(asset.value).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td>${asset.month}</td>
+                        <td>
+                            <button onclick="editAsset(${asset.id}, '${asset.name}', '${asset.category}', ${asset.value}, '${asset.month}')" style="background: #f59e0b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 5px;">✏️ Edit</button>
+                            <button onclick="deleteAsset(${asset.id})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">🗑️ Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading assets:', error);
+            }
+        }
+
+        async function addAsset(event) {
+            event.preventDefault();
+            
+            const data = {
+                name: document.getElementById('assetName').value,
+                category: document.getElementById('assetCategory').value,
+                value: parseFloat(document.getElementById('assetValue').value),
+                month: document.getElementById('assetMonth').value
+            };
+            
+            try {
+                let response;
+                if (currentEditId && currentEditType === 'asset') {
+                    // Update existing asset
+                    response = await fetch(`${API_BASE}/api/admin/edit/asset/${currentEditId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (response.ok) {
+                        alert('✅ Asset updated successfully!');
+                        currentEditId = null;
+                        currentEditType = null;
+                    }
+                } else {
+                    // Add new asset
+                    response = await fetch(`${API_BASE}/api/assets`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (response.ok) {
+                        alert('✅ Asset added successfully!');
+                    }
+                }
+                
+                if (response.ok) {
+                    closeModal('addAssetModal');
+                    document.querySelector('#addAssetModal h2').textContent = 'Add Asset';
+                    document.querySelector('#addAssetModal button[type="submit"]').textContent = 'Add Asset';
+                    loadAssets();
+                    loadDashboard();
+                }
+            } catch (error) {
+                alert('❌ Error saving asset');
+            }
+        }
+
+        async function deleteAsset(id) {
+            if (!confirm('Are you sure you want to delete this asset?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/delete/assets/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadAssets();
+                    loadDashboard();
+                }
+            } catch (error) {
+                alert('❌ Error deleting asset');
+            }
+        }
+
+        async function loadLiabilities() {
+            try {
+                const response = await fetch(`${API_BASE}/api/liabilities`);
+                const liabilities = await response.json();
+                
+                const tbody = document.getElementById('liabilitiesTableBody');
+                tbody.innerHTML = liabilities.map(liability => `
+                    <tr>
+                        <td>${liability.name}</td>
+                        <td>${liability.category}</td>
+                        <td style="color: #ef4444; font-weight: bold;">₹${parseFloat(liability.amount).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                        <td>${liability.month}</td>
+                        <td>
+                            <button onclick="editLiability(${liability.id}, '${liability.name}', '${liability.category}', ${liability.amount}, '${liability.month}')" style="background: #f59e0b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-right: 5px;">✏️ Edit</button>
+                            <button onclick="deleteLiability(${liability.id})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">🗑️ Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading liabilities:', error);
+            }
+        }
+
+        async function addLiability(event) {
+            event.preventDefault();
+            
+            const data = {
+                name: document.getElementById('liabilityName').value,
+                category: document.getElementById('liabilityCategory').value,
+                amount: parseFloat(document.getElementById('liabilityAmount').value),
+                month: document.getElementById('liabilityMonth').value
+            };
+            
+            try {
+                let response;
+                if (currentEditId && currentEditType === 'liability') {
+                    // Update existing liability
+                    response = await fetch(`${API_BASE}/api/admin/edit/liability/${currentEditId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (response.ok) {
+                        alert('✅ Liability updated successfully!');
+                        currentEditId = null;
+                        currentEditType = null;
+                    }
+                } else {
+                    // Add new liability
+                    response = await fetch(`${API_BASE}/api/liabilities`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                    
+                    if (response.ok) {
+                        alert('✅ Liability added successfully!');
+                    }
+                }
+                
+                if (response.ok) {
+                    closeModal('addLiabilityModal');
+                    document.querySelector('#addLiabilityModal h2').textContent = 'Add Liability';
+                    document.querySelector('#addLiabilityModal button[type="submit"]').textContent = 'Add Liability';
+                    loadLiabilities();
+                    loadDashboard();
+                }
+            } catch (error) {
+                alert('❌ Error saving liability');
+            }
+        }
+
+        async function deleteLiability(id) {
+            if (!confirm('Are you sure you want to delete this liability?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/delete/liabilities/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadLiabilities();
+                    loadDashboard();
+                }
+            } catch (error) {
+                alert('❌ Error deleting liability');
+            }
+        }
+
+        async function calculateLoan(event) {
+            event.preventDefault();
+            
+            const principal = parseFloat(document.getElementById('loanAmount').value);
+            const rate = parseFloat(document.getElementById('interestRate').value);
+            const years = parseInt(document.getElementById('loanYears').value);
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/loan/calculate`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        principal: principal,
+                        rate: rate,
+                        months: years * 12
+                    })
+                });
+                
+                const data = await response.json();
+                
+                document.getElementById('loanDetails').innerHTML = `
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin: 15px 0;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            <div>
+                                <strong style="color: #6b7280;">Monthly Payment</strong><br>
+                                <span style="font-size: 1.8rem; color: #3b82f6; font-weight: bold;">₹${parseFloat(data.monthly_payment).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #6b7280;">Total Payment</strong><br>
+                                <span style="font-size: 1.8rem; color: #ef4444; font-weight: bold;">₹${parseFloat(data.total_payment).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #6b7280;">Total Interest</strong><br>
+                                <span style="font-size: 1.8rem; color: #f59e0b; font-weight: bold;">₹${parseFloat(data.total_interest).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                const tipsHtml = data.tips.map(tip => `
+                    <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; margin: 15px 0; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h4 style="margin-bottom: 10px; font-size: 1.2rem;">${tip.title}</h4>
+                        <p style="margin-bottom: 10px; opacity: 0.95;">${tip.description}</p>
+                        ${tip.savings ? `<div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; font-weight: bold;">💰 Potential Savings: ₹${parseFloat(tip.savings).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>` : ''}
+                        ${tip.potential_savings ? `<div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; font-weight: bold;">💰 Potential Savings: ₹${parseFloat(tip.potential_savings).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>` : ''}
+                        ${tip.impact ? `<div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; margin-top: 5px; font-weight: bold;">⚡ Impact: ${tip.impact}</div>` : ''}
+                    </div>
+                `).join('');
+                
+                document.getElementById('loanTips').innerHTML = tipsHtml;
+                
+            } catch (error) {
+                alert('Error calculating loan. Please check your inputs.');
+            }
+        }
+
+        function showAddExpenseModal() {
+            document.getElementById('addExpenseModal').classList.add('active');
+        }
+
+        function showAddAssetModal() {
+            document.getElementById('addAssetModal').classList.add('active');
+        }
+
+        function showAddLiabilityModal() {
+            document.getElementById('addLiabilityModal').classList.add('active');
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function refreshData() {
+            const activeSection = document.querySelector('.content-section.active').id;
+            if (activeSection === 'dashboard') loadDashboard();
+            if (activeSection === 'expenses') loadExpenses();
+            if (activeSection === 'assets') loadAssets();
+            if (activeSection === 'liabilities') loadLiabilities();
+        }
+
+        // AI Insights Functions
+        async function loadAIInsights() {
+            try {
+                console.log('Loading AI Insights...');
+                
+                // Load Monthly Report & Predictions
+                const reportResponse = await fetch(`${API_BASE}/api/ai/monthly-report`);
+                if (!reportResponse.ok) {
+                    throw new Error(`Report API failed: ${reportResponse.status}`);
+                }
+                const reportData = await reportResponse.json();
+                console.log('Report data loaded:', reportData);
+                
+                // Load Investment Suggestions
+                const investmentResponse = await fetch(`${API_BASE}/api/ai/investment-suggestions`);
+                if (!investmentResponse.ok) {
+                    throw new Error(`Investment API failed: ${investmentResponse.status}`);
+                }
+                const investmentData = await investmentResponse.json();
+                console.log('Investment data loaded:', investmentData);
+                
+                // Display Prediction Chart
+                if (reportData.predictions && reportData.predictions.length > 0) {
+                    displayPredictionChart(reportData);
+                } else {
+                    document.getElementById('monthlyReportChart').innerHTML = '<p style="padding: 20px; text-align: center; color: #6b7280;">Add more data (at least 3 months) to see predictions</p>';
+                }
+                
+                // Display Insights
+                displayInsights(reportData.insights || [], reportData.summary || {});
+                
+                // Display Investment Suggestions
+                displayInvestmentSuggestions(investmentData);
+                
+                // Load Seasonal Stocks
+                await loadSeasonalStocks();
+                
+                // Load Stock Analysis
+                await loadStockAnalysis();
+                
+                console.log('AI Insights loaded successfully');
+                
+            } catch (error) {
+                console.error('Error loading AI insights:', error);
+                document.getElementById('investmentSuggestions').innerHTML = `
+                    <div style="background: #fee2e2; color: #991b1b; padding: 20px; border-radius: 10px;">
+                        <h4>⚠️ Error Loading AI Insights</h4>
+                        <p>${error.message}</p>
+                        <p>Please make sure the backend is running and you have added some financial data.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayPredictionChart(data) {
+            const ctx = document.getElementById('predictionChart').getContext('2d');
+            
+            if (charts.prediction) charts.prediction.destroy();
+            
+            const allMonths = [...data.historical.map(h => h.month), ...data.predictions.map(p => p.month)];
+            const historicalExpenses = [...data.historical.map(h => h.expenses), ...Array(data.predictions.length).fill(null)];
+            const predictedExpenses = [...Array(data.historical.length).fill(null), ...data.predictions.map(p => p.predicted_expenses)];
+            const historicalNetWorth = [...data.historical.map(h => h.net_worth), ...Array(data.predictions.length).fill(null)];
+            const predictedNetWorth = [...Array(data.historical.length).fill(null), ...data.predictions.map(p => p.predicted_net_worth)];
+            
+            charts.prediction = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: allMonths,
+                    datasets: [
+                        {
+                            label: 'Historical Expenses',
+                            data: historicalExpenses,
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'Predicted Expenses',
+                            data: predictedExpenses,
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false
+                        },
+                        {
+                            label: 'Historical Net Worth',
+                            data: historicalNetWorth,
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            borderWidth: 2,
+                            fill: false
+                        },
+                        {
+                            label: 'Predicted Net Worth',
+                            data: predictedNetWorth,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value.toLocaleString('en-IN');
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayInsights(insights, summary) {
+            const insightsSection = insights && insights.length > 0 ? `
+                <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 15px;">📊 Key Insights</h4>
+                    ${insights.map(insight => `
+                        <div style="padding: 10px; margin: 10px 0; background: white; border-left: 4px solid ${insight.type === 'success' ? '#10b981' : '#f59e0b'}; border-radius: 5px;">
+                            ${insight.message}
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '<div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-bottom: 20px;"><p style="color: #6b7280;">Add more financial data to see insights</p></div>';
+            
+            const summarySection = summary && Object.keys(summary).length > 0 ? `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div style="background: white; padding: 15px; border-radius: 10px; border: 2px solid #e5e7eb;">
+                        <strong style="color: #6b7280;">Avg Monthly Expenses</strong><br>
+                        <span style="font-size: 1.5rem; color: #ef4444; font-weight: bold;">₹${(summary.avg_monthly_expenses || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 10px; border: 2px solid #e5e7eb;">
+                        <strong style="color: #6b7280;">Avg Savings Rate</strong><br>
+                        <span style="font-size: 1.5rem; color: #10b981; font-weight: bold;">${(summary.avg_savings_rate || 0).toFixed(1)}%</span>
+                    </div>
+                    <div style="background: white; padding: 15px; border-radius: 10px; border: 2px solid #e5e7eb;">
+                        <strong style="color: #6b7280;">Total Growth</strong><br>
+                        <span style="font-size: 1.5rem; color: ${(summary.total_growth || 0) >= 0 ? '#10b981' : '#ef4444'}; font-weight: bold;">₹${(summary.total_growth || 0).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    </div>
+                </div>
+            ` : '';
+            
+            document.getElementById('insightsContainer').innerHTML = insightsSection + summarySection;
+        }
+
+        function displayInvestmentSuggestions(data) {
+            const suggestionsHtml = data.suggestions.map(suggestion => `
+                <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; margin: 15px 0; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                        <h4 style="font-size: 1.2rem; margin: 0;">${suggestion.title}</h4>
+                        <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 5px; font-size: 0.9rem;">${suggestion.priority.toUpperCase()}</span>
+                    </div>
+                    <p style="margin: 10px 0; opacity: 0.95;">${suggestion.description}</p>
+                    <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                        <strong>Action:</strong> ${suggestion.action}
+                    </div>
+                    <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px;">
+                        <strong>Recommended Allocation:</strong> ${suggestion.allocation}%
+                    </div>
+                    ${suggestion.recommendations ? `
+                        <div style="margin-top: 15px;">
+                            <strong>Specific Recommendations:</strong>
+                            ${suggestion.recommendations.map(rec => `
+                                <div style="background: rgba(255,255,255,0.15); padding: 10px; margin: 5px 0; border-radius: 5px; display: flex; justify-content: space-between;">
+                                    <span>${rec.name}</span>
+                                    <span>${rec.allocation}% | Risk: ${rec.risk}${rec.returns ? ' | Returns: ' + rec.returns : ''}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+            
+            document.getElementById('investmentSuggestions').innerHTML = suggestionsHtml + `
+                <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin-top: 20px;">
+                    <h4>💼 Investment Summary</h4>
+                    <p><strong>Total Investable Amount:</strong> ₹${data.total_investable.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                    <p><strong>Risk Profile:</strong> ${data.risk_profile}</p>
+                </div>
+            `;
+            
+            // Display specific recommendations
+            const equitySuggestion = data.suggestions.find(s => s.type === 'equity');
+            if (equitySuggestion && equitySuggestion.recommendations) {
+                document.getElementById('equityRecommendations').innerHTML = equitySuggestion.recommendations.map(rec => `
+                    <div style="padding: 10px; margin: 10px 0; background: #f8fafc; border-left: 4px solid #10b981; border-radius: 5px;">
+                        <strong>${rec.name}</strong><br>
+                        <span style="color: #6b7280;">Allocation: ${rec.allocation}% | Risk: ${rec.risk}</span>
+                    </div>
+                `).join('');
+            }
+            
+            const debtSuggestion = data.suggestions.find(s => s.type === 'debt');
+            if (debtSuggestion && debtSuggestion.recommendations) {
+                document.getElementById('debtRecommendations').innerHTML = debtSuggestion.recommendations.map(rec => `
+                    <div style="padding: 10px; margin: 10px 0; background: #f8fafc; border-left: 4px solid #3b82f6; border-radius: 5px;">
+                        <strong>${rec.name}</strong><br>
+                        <span style="color: #6b7280;">Allocation: ${rec.allocation}% | Risk: ${rec.risk} | Returns: ${rec.returns}</span>
+                    </div>
+                `).join('');
+            }
+            
+            const taxSuggestion = data.suggestions.find(s => s.type === 'tax_saving');
+            if (taxSuggestion && taxSuggestion.recommendations) {
+                document.getElementById('taxSavingOptions').innerHTML = taxSuggestion.recommendations.map(rec => `
+                    <div style="padding: 10px; margin: 10px 0; background: #f8fafc; border-left: 4px solid #f59e0b; border-radius: 5px;">
+                        <strong>${rec.name}</strong><br>
+                        <span style="color: #6b7280;">Allocation: ${rec.allocation}% | Risk: ${rec.risk} | Returns: ${rec.returns}</span>
+                    </div>
+                `).join('');
+            }
+            
+            const goldSuggestion = data.suggestions.find(s => s.type === 'gold');
+            if (goldSuggestion && goldSuggestion.recommendations) {
+                document.getElementById('goldInvestment').innerHTML = goldSuggestion.recommendations.map(rec => `
+                    <div style="padding: 10px; margin: 10px 0; background: #f8fafc; border-left: 4px solid #fbbf24; border-radius: 5px;">
+                        <strong>${rec.name}</strong><br>
+                        <span style="color: #6b7280;">Allocation: ${rec.allocation}% | Risk: ${rec.risk}</span>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('goldInvestment').innerHTML = '<p style="color: #6b7280;">Build more wealth to unlock gold investment recommendations</p>';
+            }
+            
+            // Budget Analysis
+            document.getElementById('budgetAnalysis').innerHTML = `
+                <div style="background: #f8fafc; padding: 20px; border-radius: 10px;">
+                    <h4>💡 Smart Budget Recommendations</h4>
+                    <div style="margin: 15px 0;">
+                        <strong>50-30-20 Rule for Indian Budget:</strong>
+                        <ul style="margin-top: 10px; line-height: 1.8;">
+                            <li><strong>50%</strong> - Needs (Rent, Food, Utilities, EMIs)</li>
+                            <li><strong>30%</strong> - Wants (Entertainment, Dining, Shopping)</li>
+                            <li><strong>20%</strong> - Savings & Investments</li>
+                        </ul>
+                    </div>
+                    <div style="margin: 15px 0; padding: 15px; background: white; border-radius: 8px;">
+                        <strong>🎯 Action Items:</strong>
+                        <ul style="margin-top: 10px; line-height: 1.8;">
+                            <li>Track expenses daily using this app</li>
+                            <li>Review and optimize subscriptions monthly</li>
+                            <li>Automate savings on salary day</li>
+                            <li>Invest in tax-saving instruments before March</li>
+                            <li>Rebalance portfolio annually</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Seasonal Stocks
+        async function loadSeasonalStocks() {
+            try {
+                const response = await fetch(`${API_BASE}/api/ai/seasonal-stocks`);
+                const data = await response.json();
+                
+                const stocksHtml = `
+                    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+                        <h4 style="font-size: 1.3rem; margin-bottom: 10px;">🗓️ ${data.current_month} - ${data.season}</h4>
+                        <p style="opacity: 0.95;">Recommended Sectors: ${data.recommended_sectors.join(', ')}</p>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                        ${data.stocks.map(stock => `
+                            <div style="background: white; padding: 15px; border-radius: 10px; border-left: 4px solid ${stock.risk === 'Low' ? '#10b981' : stock.risk === 'Medium' ? '#f59e0b' : '#ef4444'}; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                                <h5 style="color: #1a202c; margin-bottom: 8px; font-size: 1.1rem;">${stock.name}</h5>
+                                <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px;"><strong>Sector:</strong> ${stock.sector}</p>
+                                <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 5px;"><strong>Reason:</strong> ${stock.reason}</p>
+                                <span style="background: ${stock.risk === 'Low' ? '#d1fae5' : stock.risk === 'Medium' ? '#fef3c7' : '#fee2e2'}; color: ${stock.risk === 'Low' ? '#065f46' : stock.risk === 'Medium' ? '#92400e' : '#991b1b'}; padding: 3px 8px; border-radius: 5px; font-size: 0.85rem;">Risk: ${stock.risk}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 10px;">
+                        <h4 style="margin-bottom: 10px;">💡 General Investment Advice</h4>
+                        <ul style="line-height: 1.8; color: #4b5563;">
+                            ${data.general_advice.map(advice => `<li>${advice}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                
+                document.getElementById('seasonalStocks').innerHTML = stocksHtml;
+            } catch (error) {
+                console.error('Error loading seasonal stocks:', error);
+                document.getElementById('seasonalStocks').innerHTML = '<p style="color: #6b7280;">Unable to load seasonal stock recommendations</p>';
+            }
+        }
+
+        // Quick Loan Closure Strategies
+        async function getQuickLoanStrategies(event) {
+            event.preventDefault();
+            
+            const data = {
+                loan_amount: parseFloat(document.getElementById('closureLoanAmount').value),
+                interest_rate: parseFloat(document.getElementById('closureInterestRate').value),
+                remaining_months: parseInt(document.getElementById('closureRemainingMonths').value),
+                monthly_income: parseFloat(document.getElementById('closureMonthlyIncome').value)
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/ai/quick-loan-closure`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                const strategiesHtml = `
+                    <div style="background: #eff6ff; padding: 20px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #3b82f6;">
+                        <h4 style="color: #1e40af; margin-bottom: 15px;">📊 Current Loan Situation</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                            <div>
+                                <strong style="color: #6b7280;">Loan Amount:</strong><br>
+                                <span style="font-size: 1.2rem; color: #1a202c;">₹${result.current_situation.loan_amount.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #6b7280;">Current EMI:</strong><br>
+                                <span style="font-size: 1.2rem; color: #1a202c;">₹${result.current_situation.current_emi.toLocaleString('en-IN')}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #6b7280;">Remaining Months:</strong><br>
+                                <span style="font-size: 1.2rem; color: #1a202c;">${result.current_situation.remaining_months}</span>
+                            </div>
+                            <div>
+                                <strong style="color: #6b7280;">Total Interest:</strong><br>
+                                <span style="font-size: 1.2rem; color: #ef4444;">₹${result.current_situation.total_interest.toLocaleString('en-IN')}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background: #d1fae5; padding: 15px; border-radius: 10px; margin-bottom: 20px; border-left: 4px solid #10b981;">
+                        <h4 style="color: #065f46; margin-bottom: 10px;">⭐ Best Strategy Recommended</h4>
+                        <p style="color: #047857; font-size: 1.1rem; font-weight: bold;">${result.best_strategy.strategy}</p>
+                    </div>
+                    
+                    <h4 style="margin-bottom: 15px;">🚀 All Closure Strategies</h4>
+                    ${result.strategies.map((strategy, index) => `
+                        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; margin: 15px 0; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                <h5 style="font-size: 1.2rem; margin: 0;">${strategy.strategy}</h5>
+                                <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 5px; font-size: 0.9rem;">Priority ${strategy.priority}</span>
+                            </div>
+                            
+                            ${strategy.new_emi ? `
+                                <div style="background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>New EMI:</strong> ₹${strategy.new_emi.toLocaleString('en-IN')}
+                                </div>
+                            ` : ''}
+                            
+                            ${strategy.new_tenure ? `
+                                <div style="background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>New Tenure:</strong> ${strategy.new_tenure} months
+                                </div>
+                            ` : ''}
+                            
+                            ${strategy.time_saved_months ? `
+                                <div style="background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>⏰ Time Saved:</strong> ${strategy.time_saved_months} months
+                                </div>
+                            ` : ''}
+                            
+                            ${strategy.interest_saved ? `
+                                <div style="background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>💰 Interest Saved:</strong> ₹${strategy.interest_saved.toLocaleString('en-IN')}
+                                </div>
+                            ` : ''}
+                            
+                            ${strategy.lump_sum_amount ? `
+                                <div style="background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>Lump Sum Amount:</strong> ₹${strategy.lump_sum_amount.toLocaleString('en-IN')}
+                                </div>
+                            ` : ''}
+                            
+                            ${strategy.new_rate ? `
+                                <div style="background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>New Interest Rate:</strong> ${strategy.new_rate}%
+                                </div>
+                            ` : ''}
+                            
+                            ${strategy.biweekly_amount ? `
+                                <div style="background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>Bi-Weekly Payment:</strong> ₹${strategy.biweekly_amount.toLocaleString('en-IN')}
+                                </div>
+                            ` : ''}
+                            
+                            ${strategy.recommendation ? `
+                                <div style="background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>Recommendation:</strong> ${strategy.recommendation}
+                                </div>
+                            ` : ''}
+                            
+                            ${strategy.impact ? `
+                                <div style="background: rgba(255,255,255,0.15); padding: 10px; border-radius: 8px; margin: 10px 0;">
+                                    <strong>Impact:</strong> ${strategy.impact}
+                                </div>
+                            ` : ''}
+                            
+                            <div style="background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; margin-top: 10px;">
+                                <strong>Feasibility:</strong> ${strategy.feasibility}
+                            </div>
+                        </div>
+                    `).join('')}
+                    
+                    <div style="background: #fef3c7; padding: 20px; border-radius: 10px; margin-top: 20px; border-left: 4px solid #f59e0b;">
+                        <h4 style="color: #92400e; margin-bottom: 10px;">💡 Quick Tips</h4>
+                        <ul style="line-height: 1.8; color: #78350f;">
+                            ${result.quick_tips.map(tip => `<li>${tip}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                
+                document.getElementById('loanClosureStrategies').innerHTML = strategiesHtml;
+            } catch (error) {
+                console.error('Error getting loan strategies:', error);
+                alert('Error calculating loan strategies. Please check your inputs.');
+            }
+        }
+
+        // Stock Analysis Functions
+        let stockData = null;
+
+        async function loadStockAnalysis() {
+            try {
+                const response = await fetch(`${API_BASE}/api/ai/stock-analysis`);
+                stockData = await response.json();
+                showStockTab('all');
+            } catch (error) {
+                console.error('Error loading stock analysis:', error);
+                document.getElementById('stockAnalysisContent').innerHTML = '<p style="color: #6b7280;">Unable to load stock analysis</p>';
+            }
+        }
+
+        let currentStockTab = 'all';
+
+        function showStockTab(tab) {
+            if (!stockData) return;
+            
+            currentStockTab = tab;
+            
+            // Update button styles
+            document.querySelectorAll('#btnAllStocks, #btnStrongBuy, #btnBuy, #btnBestPE, #btnBestDividend, #btnBestROE').forEach(btn => {
+                btn.style.opacity = '0.6';
+            });
+            
+            let stocks = [];
+            let title = '';
+            
+            if (tab === 'all') {
+                stocks = stockData.all_stocks;
+                title = `All ${stockData.total_stocks} Stocks Under ₹1,000`;
+                document.getElementById('btnAllStocks').style.opacity = '1';
+            } else if (tab === 'strong-buy') {
+                stocks = stockData.by_recommendation.strong_buy;
+                title = '⭐ Strong Buy Recommendations';
+                document.getElementById('btnStrongBuy').style.opacity = '1';
+            } else if (tab === 'buy') {
+                stocks = stockData.by_recommendation.buy;
+                title = '✅ Buy Recommendations';
+                document.getElementById('btnBuy').style.opacity = '1';
+            } else if (tab === 'best-pe') {
+                stocks = stockData.top_picks.best_pe_ratio;
+                title = '📊 Best P/E Ratios (Value Stocks)';
+                document.getElementById('btnBestPE').style.opacity = '1';
+            } else if (tab === 'best-dividend') {
+                stocks = stockData.top_picks.best_dividend_yield;
+                title = '💰 Best Dividend Yields';
+                document.getElementById('btnBestDividend').style.opacity = '1';
+            } else if (tab === 'best-roe') {
+                stocks = stockData.top_picks.best_roe;
+                title = '🚀 Best ROE (Return on Equity)';
+                document.getElementById('btnBestROE').style.opacity = '1';
+            }
+            
+            displayStockTable(stocks, title);
+        }
+
+        function displayStockTable(stocks, title) {
+            const html = `
+                <h4 style="margin-bottom: 20px; color: #1a202c;">${title}</h4>
+                
+                ${currentStockTab === 'all' ? `
+                    <div style="background: #f8fafc; padding: 15px; border-radius: 10px; margin-bottom: 20px;">
+                        <strong>Market Averages:</strong><br>
+                        Avg P/E: ${stockData.analysis_summary.avg_pe_ratio.toFixed(2)} | 
+                        Avg Dividend Yield: ${stockData.analysis_summary.avg_dividend_yield.toFixed(2)}% | 
+                        Avg ROE: ${stockData.analysis_summary.avg_roe.toFixed(2)}%
+                    </div>
+                ` : ''}
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px;">
+                    ${stocks.map(stock => `
+                        <div style="background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border-left: 4px solid ${
+                            stock.recommendation === 'Strong Buy' ? '#10b981' :
+                            stock.recommendation === 'Buy' ? '#3b82f6' :
+                            stock.recommendation === 'Hold' ? '#f59e0b' :
+                            stock.recommendation === 'Speculative Buy' ? '#8b5cf6' :
+                            '#ef4444'
+                        };">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                <div>
+                                    <h5 style="color: #1a202c; margin: 0; font-size: 1.1rem;">${stock.name}</h5>
+                                    <span style="color: #6b7280; font-size: 0.85rem;">${stock.symbol} | ${stock.sector}</span>
+                                </div>
+                                <span style="background: ${
+                                    stock.recommendation === 'Strong Buy' ? '#d1fae5' :
+                                    stock.recommendation === 'Buy' ? '#dbeafe' :
+                                    stock.recommendation === 'Hold' ? '#fef3c7' :
+                                    stock.recommendation === 'Speculative Buy' ? '#ede9fe' :
+                                    '#fee2e2'
+                                }; color: ${
+                                    stock.recommendation === 'Strong Buy' ? '#065f46' :
+                                    stock.recommendation === 'Buy' ? '#1e40af' :
+                                    stock.recommendation === 'Hold' ? '#92400e' :
+                                    stock.recommendation === 'Speculative Buy' ? '#5b21b6' :
+                                    '#991b1b'
+                                }; padding: 4px 8px; border-radius: 5px; font-size: 0.75rem; font-weight: bold;">${stock.recommendation.toUpperCase()}</span>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; padding: 15px; background: #f8fafc; border-radius: 8px;">
+                                <div>
+                                    <strong style="color: #6b7280; font-size: 0.85rem;">Current Price</strong><br>
+                                    <span style="font-size: 1.3rem; color: #1a202c; font-weight: bold;">₹${stock.current_price}</span>
+                                </div>
+                                <div>
+                                    <strong style="color: #6b7280; font-size: 0.85rem;">Target Price</strong><br>
+                                    <span style="font-size: 1.3rem; color: #10b981; font-weight: bold;">₹${stock.target_price}</span>
+                                    <br><small style="color: #10b981;">+${((stock.target_price - stock.current_price) / stock.current_price * 100).toFixed(1)}%</small>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 0;">
+                                <div style="text-align: center; padding: 8px; background: #eff6ff; border-radius: 6px;">
+                                    <strong style="color: #6b7280; font-size: 0.75rem;">P/E Ratio</strong><br>
+                                    <span style="font-size: 1.1rem; color: #3b82f6; font-weight: bold;">${stock.pe_ratio > 0 ? stock.pe_ratio : 'N/A'}</span>
+                                </div>
+                                <div style="text-align: center; padding: 8px; background: #f0fdf4; border-radius: 6px;">
+                                    <strong style="color: #6b7280; font-size: 0.75rem;">ROE</strong><br>
+                                    <span style="font-size: 1.1rem; color: #10b981; font-weight: bold;">${stock.roe > 0 ? stock.roe.toFixed(1) : 'N/A'}%</span>
+                                </div>
+                                <div style="text-align: center; padding: 8px; background: #fef3c7; border-radius: 6px;">
+                                    <strong style="color: #6b7280; font-size: 0.75rem;">Dividend</strong><br>
+                                    <span style="font-size: 1.1rem; color: #f59e0b; font-weight: bold;">${stock.dividend_yield.toFixed(1)}%</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin: 10px 0;">
+                                <strong style="color: #6b7280; font-size: 0.85rem;">Risk Level:</strong>
+                                <span style="background: ${
+                                    stock.risk === 'Low' ? '#d1fae5' :
+                                    stock.risk === 'Medium' ? '#fef3c7' :
+                                    stock.risk === 'High' ? '#fed7aa' :
+                                    '#fee2e2'
+                                }; color: ${
+                                    stock.risk === 'Low' ? '#065f46' :
+                                    stock.risk === 'Medium' ? '#92400e' :
+                                    stock.risk === 'High' ? '#9a3412' :
+                                    '#991b1b'
+                                }; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; margin-left: 5px;">${stock.risk}</span>
+                            </div>
+                            
+                            <div style="margin: 10px 0;">
+                                <strong style="color: #6b7280; font-size: 0.85rem;">✅ Reasons to Buy:</strong>
+                                <ul style="margin: 5px 0; padding-left: 20px; font-size: 0.85rem; color: #4b5563;">
+                                    ${stock.reasons.map(r => `<li>${r}</li>`).join('')}
+                                </ul>
+                            </div>
+                            
+                            <div style="margin: 10px 0;">
+                                <strong style="color: #6b7280; font-size: 0.85rem;">⚠️ Concerns:</strong>
+                                <ul style="margin: 5px 0; padding-left: 20px; font-size: 0.85rem; color: #4b5563;">
+                                    ${stock.concerns.map(c => `<li>${c}</li>`).join('')}
+                                </ul>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid #e5e7eb; font-size: 0.8rem; color: #6b7280;">
+                                <div>Debt/Equity: ${stock.debt_to_equity.toFixed(2)}</div>
+                                <div>Profit Margin: ${stock.profit_margin.toFixed(1)}%</div>
+                                <div>Revenue Growth: ${stock.revenue_growth.toFixed(1)}%</div>
+                                <div>Market Cap: ₹${stock.market_cap} Cr</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            
+            document.getElementById('stockAnalysisContent').innerHTML = html;
+        }
+
+        // Reports Functions
+        let currentReportType = 'yearly';
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().toISOString().slice(0, 7);
+        let currentWeekDate = new Date().toISOString().slice(0, 10);
+
+        function showReportType(type) {
+            currentReportType = type;
+            
+            // Hide all reports
+            document.querySelectorAll('.report-section').forEach(section => {
+                section.style.display = 'none';
+            });
+            
+            // Update button styles
+            document.querySelectorAll('#btnYearly, #btnMonthly, #btnWeekly').forEach(btn => {
+                btn.style.opacity = '0.6';
+            });
+            
+            // Show selected report
+            if (type === 'yearly') {
+                document.getElementById('yearlyReport').style.display = 'block';
+                document.getElementById('btnYearly').style.opacity = '1';
+                showYearFilter();
+                loadYearlyReport(currentYear);
+            } else if (type === 'monthly') {
+                document.getElementById('monthlyReport').style.display = 'block';
+                document.getElementById('btnMonthly').style.opacity = '1';
+                showMonthFilter();
+                loadMonthlyReport(currentMonth);
+            } else if (type === 'weekly') {
+                document.getElementById('weeklyReport').style.display = 'block';
+                document.getElementById('btnWeekly').style.opacity = '1';
+                showWeekFilter();
+                loadWeeklyReport(currentWeekDate);
+            }
+        }
+
+        function showYearFilter() {
+            const currentYr = new Date().getFullYear();
+            document.getElementById('reportFilters').innerHTML = `
+                <select id="yearSelect" onchange="loadYearlyReport(this.value)" style="padding: 10px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                    ${[currentYr, currentYr-1, currentYr-2].map(year => `
+                        <option value="${year}" ${year === currentYear ? 'selected' : ''}>${year}</option>
+                    `).join('')}
+                </select>
+            `;
+        }
+
+        function showMonthFilter() {
+            document.getElementById('reportFilters').innerHTML = `
+                <input type="month" id="monthSelect" value="${currentMonth}" onchange="loadMonthlyReport(this.value)" style="padding: 10px; border-radius: 8px; border: 2px solid #e2e8f0;">
+            `;
+        }
+
+        function showWeekFilter() {
+            document.getElementById('reportFilters').innerHTML = `
+                <input type="date" id="weekSelect" value="${currentWeekDate}" onchange="loadWeeklyReport(this.value)" style="padding: 10px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                <span style="color: #6b7280; font-size: 0.9rem;">Select any date in the week</span>
+            `;
+        }
+
+        async function loadYearlyReport(year) {
+            currentYear = year;
+            try {
+                const response = await fetch(`${API_BASE}/api/reports/yearly?year=${year}`);
+                const data = await response.json();
+                
+                // Display chart
+                const ctx = document.getElementById('yearlyChart').getContext('2d');
+                if (charts.yearly) charts.yearly.destroy();
+                
+                charts.yearly = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.monthly_data.map(m => m.month_name),
+                        datasets: [{
+                            label: 'Expenses',
+                            data: data.monthly_data.map(m => m.expenses),
+                            backgroundColor: 'rgba(239, 68, 68, 0.7)',
+                            borderColor: '#ef4444',
+                            borderWidth: 1
+                        }, {
+                            label: 'Net Worth',
+                            data: data.monthly_data.map(m => m.net_worth),
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                            borderColor: '#10b981',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₹' + value.toLocaleString('en-IN');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Display summary
+                document.getElementById('yearlySummary').innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <strong style="color: #6b7280;">Total Expenses</strong><br>
+                            <span style="font-size: 1.5rem; color: #ef4444; font-weight: bold;">₹${data.summary.total_expenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <strong style="color: #6b7280;">Final Net Worth</strong><br>
+                            <span style="font-size: 1.5rem; color: #10b981; font-weight: bold;">₹${data.summary.final_net_worth.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <strong style="color: #6b7280;">Avg Monthly Expenses</strong><br>
+                            <span style="font-size: 1.5rem; color: #3b82f6; font-weight: bold;">₹${data.summary.avg_monthly_expenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                        </div>
+                    </div>
+                `;
+                
+                // Display table
+                document.getElementById('yearlyTable').innerHTML = `
+                    <div class="data-table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Month</th>
+                                    <th>Expenses</th>
+                                    <th>Assets</th>
+                                    <th>Liabilities</th>
+                                    <th>Net Worth</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.monthly_data.map(m => `
+                                    <tr>
+                                        <td>${m.month_name}</td>
+                                        <td style="color: #ef4444; font-weight: bold;">₹${m.expenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                                        <td style="color: #10b981; font-weight: bold;">₹${m.assets.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                                        <td style="color: #ef4444; font-weight: bold;">₹${m.liabilities.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                                        <td style="color: ${m.net_worth >= 0 ? '#10b981' : '#ef4444'}; font-weight: bold;">₹${m.net_worth.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading yearly report:', error);
+            }
+        }
+
+        async function loadMonthlyReport(month) {
+            currentMonth = month;
+            try {
+                const response = await fetch(`${API_BASE}/api/reports/monthly?month=${month}`);
+                const data = await response.json();
+                
+                // Display chart
+                const ctx = document.getElementById('monthlyChart').getContext('2d');
+                if (charts.monthly) charts.monthly.destroy();
+                
+                charts.monthly = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: data.expenses_by_category.map(c => c.category),
+                        datasets: [{
+                            data: data.expenses_by_category.map(c => c.total),
+                            backgroundColor: ['#667eea', '#764ba2', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#feca57', '#ff6348']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+                
+                // Display summary
+                document.getElementById('monthlySummary').innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <strong style="color: #6b7280;">Total Expenses</strong><br>
+                            <span style="font-size: 1.5rem; color: #ef4444; font-weight: bold;">₹${data.summary.total_expenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                            <br><small style="color: #6b7280;">${data.summary.expense_count} transactions</small>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #10b981; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <strong style="color: #6b7280;">Net Worth</strong><br>
+                            <span style="font-size: 1.5rem; color: #10b981; font-weight: bold;">₹${data.summary.net_worth.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <strong style="color: #6b7280;">Assets</strong><br>
+                            <span style="font-size: 1.5rem; color: #3b82f6; font-weight: bold;">₹${data.summary.total_assets.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                            <br><small style="color: #6b7280;">${data.summary.asset_count} items</small>
+                        </div>
+                    </div>
+                `;
+                
+                // Display details
+                document.getElementById('monthlyDetails').innerHTML = `
+                    <div class="data-table-container" style="margin-top: 20px;">
+                        <h4 style="padding: 15px; background: #f8fafc;">Expense Breakdown by Category</h4>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Category</th>
+                                    <th>Total Amount</th>
+                                    <th>Percentage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.expenses_by_category.map(c => `
+                                    <tr>
+                                        <td>${c.category}</td>
+                                        <td style="color: #ef4444; font-weight: bold;">₹${c.total.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                                        <td>${((c.total / data.summary.total_expenses) * 100).toFixed(1)}%</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading monthly report:', error);
+            }
+        }
+
+        async function loadWeeklyReport(date) {
+            currentWeekDate = date;
+            try {
+                const response = await fetch(`${API_BASE}/api/reports/weekly?date=${date}`);
+                const data = await response.json();
+                
+                // Display chart
+                const ctx = document.getElementById('weeklyChart').getContext('2d');
+                if (charts.weekly) charts.weekly.destroy();
+                
+                charts.weekly = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: data.daily_data.map(d => d.day_name),
+                        datasets: [{
+                            label: 'Daily Expenses',
+                            data: data.daily_data.map(d => d.total),
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₹' + value.toLocaleString('en-IN');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Display summary
+                document.getElementById('weeklySummary').innerHTML = `
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                        <h4>Week: ${data.week_start} to ${data.week_end}</h4>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #ef4444; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <strong style="color: #6b7280;">Total Expenses</strong><br>
+                            <span style="font-size: 1.5rem; color: #ef4444; font-weight: bold;">₹${data.summary.total_expenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                            <br><small style="color: #6b7280;">${data.summary.expense_count} transactions</small>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #3b82f6; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <strong style="color: #6b7280;">Avg Daily Expenses</strong><br>
+                            <span style="font-size: 1.5rem; color: #3b82f6; font-weight: bold;">₹${data.summary.avg_daily_expenses.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                        </div>
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 4px solid #f59e0b; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <strong style="color: #6b7280;">Highest Day</strong><br>
+                            <span style="font-size: 1.5rem; color: #f59e0b; font-weight: bold;">${data.summary.highest_day}</span>
+                            <br><small style="color: #6b7280;">₹${data.summary.highest_amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</small>
+                        </div>
+                    </div>
+                `;
+                
+                // Display details
+                document.getElementById('weeklyDetails').innerHTML = `
+                    <div class="data-table-container" style="margin-top: 20px;">
+                        <h4 style="padding: 15px; background: #f8fafc;">Daily Breakdown</h4>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Date</th>
+                                    <th>Transactions</th>
+                                    <th>Total Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.daily_data.map(d => `
+                                    <tr>
+                                        <td>${d.day_name}</td>
+                                        <td>${d.date}</td>
+                                        <td>${d.expenses.length}</td>
+                                        <td style="color: #ef4444; font-weight: bold;">₹${d.total.toLocaleString('en-IN', {minimumFractionDigits: 2})}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Error loading weekly report:', error);
+            }
+        }
+
+        // Search Function for React-style tables
+        function searchTable(tableId, searchValue) {
+            const table = document.getElementById(tableId);
+            const tbody = table.getElementsByTagName('tbody')[0];
+            const rows = tbody.getElementsByTagName('tr');
+            let visibleCount = 0;
+            
+            searchValue = searchValue.toLowerCase();
+            
+            for (let i = 0; i < rows.length; i++) {
+                const row = rows[i];
+                const cells = row.getElementsByTagName('td');
+                let found = false;
+                
+                for (let j = 0; j < cells.length - 1; j++) { // Exclude actions column
+                    const cellText = cells[j].textContent || cells[j].innerText;
+                    if (cellText.toLowerCase().indexOf(searchValue) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+                
+                if (found) {
+                    row.style.display = '';
+                    visibleCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+            
+            // Update info text
+            const infoId = tableId.replace('Table', 'Info');
+            const infoElement = document.getElementById(infoId);
+            if (infoElement) {
+                if (searchValue) {
+                    infoElement.textContent = `Showing ${visibleCount} of ${rows.length} results`;
+                } else {
+                    infoElement.textContent = `Showing all ${rows.length} items`;
+                }
+            }
+        }
+
+        // Edit Functions
+        let currentEditId = null;
+        let currentEditType = null;
+
+        function editExpense(id, category, description, amount, date) {
+            currentEditId = id;
+            currentEditType = 'expense';
+            
+            document.getElementById('expenseCategory').value = category;
+            document.getElementById('expenseDescription').value = description;
+            document.getElementById('expenseAmount').value = amount;
+            document.getElementById('expenseDate').value = date;
+            
+            document.getElementById('addExpenseModal').classList.add('active');
+            document.querySelector('#addExpenseModal h2').textContent = 'Edit Expense';
+            document.querySelector('#addExpenseModal button[type="submit"]').textContent = 'Update Expense';
+        }
+
+        function editAsset(id, name, category, value, month) {
+            currentEditId = id;
+            currentEditType = 'asset';
+            
+            document.getElementById('assetName').value = name;
+            document.getElementById('assetCategory').value = category;
+            document.getElementById('assetValue').value = value;
+            document.getElementById('assetMonth').value = month;
+            
+            document.getElementById('addAssetModal').classList.add('active');
+            document.querySelector('#addAssetModal h2').textContent = 'Edit Asset';
+            document.querySelector('#addAssetModal button[type="submit"]').textContent = 'Update Asset';
+        }
+
+        function editLiability(id, name, category, amount, month) {
+            currentEditId = id;
+            currentEditType = 'liability';
+            
+            document.getElementById('liabilityName').value = name;
+            document.getElementById('liabilityCategory').value = category;
+            document.getElementById('liabilityAmount').value = amount;
+            document.getElementById('liabilityMonth').value = month;
+            
+            document.getElementById('addLiabilityModal').classList.add('active');
+            document.querySelector('#addLiabilityModal h2').textContent = 'Edit Liability';
+            document.querySelector('#addLiabilityModal button[type="submit"]').textContent = 'Update Liability';
+        }
+
+        // Template Functions
+        function showTemplateTab(type) {
+            // Update button opacity
+            document.getElementById('btnExpenseTemplates').style.opacity = type === 'expense' ? '1' : '0.6';
+            document.getElementById('btnIncomeTemplates').style.opacity = type === 'income' ? '1' : '0.6';
+            document.getElementById('btnAssetTemplates').style.opacity = type === 'asset' ? '1' : '0.6';
+            document.getElementById('btnLiabilityTemplates').style.opacity = type === 'liability' ? '1' : '0.6';
+            
+            // Show/hide sections
+            document.getElementById('expenseTemplatesSection').style.display = type === 'expense' ? 'block' : 'none';
+            document.getElementById('incomeTemplatesSection').style.display = type === 'income' ? 'block' : 'none';
+            document.getElementById('assetTemplatesSection').style.display = type === 'asset' ? 'block' : 'none';
+            document.getElementById('liabilityTemplatesSection').style.display = type === 'liability' ? 'block' : 'none';
+            
+            // Load appropriate templates
+            if (type === 'expense') {
+                loadExpenseTemplates();
+            } else if (type === 'income') {
+                loadIncomeTemplates();
+            } else if (type === 'asset') {
+                loadAssetTemplates();
+            } else if (type === 'liability') {
+                loadLiabilityTemplates();
+            }
+        }
+
+        async function loadExpenseTemplates() {
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/expense`);
+                const templates = await response.json();
+                
+                const groupedTemplates = {};
+                templates.forEach(t => {
+                    if (!groupedTemplates[t.category]) {
+                        groupedTemplates[t.category] = [];
+                    }
+                    groupedTemplates[t.category].push(t);
+                });
+                
+                let html = '';
+                for (const [category, items] of Object.entries(groupedTemplates)) {
+                    html += `
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                ${category} (${items.length} templates)
+                            </h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
+                                ${items.map(t => `
+                                    <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid ${t.is_recurring ? '#10b981' : '#f59e0b'};">
+                                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                            <div>
+                                                <strong style="font-size: 1.1rem; color: #1a202c;">${t.subcategory || category}</strong>
+                                                ${t.is_recurring ? '<span style="background: #d1fae5; color: #065f46; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-left: 5px;">Recurring</span>' : ''}
+                                            </div>
+                                            <div>
+                                                <button onclick="deleteExpenseTemplate(${t.id})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">🗑️</button>
+                                            </div>
+                                        </div>
+                                        <p style="color: #6b7280; font-size: 0.9rem; margin: 5px 0;">${t.description || 'No description'}</p>
+                                        <p style="color: #10b981; font-size: 1.3rem; font-weight: bold; margin-top: 10px;">₹${t.default_amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</p>
+                                        <button onclick="useExpenseTemplate(${t.id}, '${t.category}', '${t.subcategory}', ${t.default_amount})" style="background: #3b82f6; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px;">Use Template</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('expenseTemplatesList').innerHTML = html || '<p style="color: #6b7280;">No expense templates found. Add your first template!</p>';
+            } catch (error) {
+                console.error('Error loading expense templates:', error);
+            }
+        }
+
+        async function loadIncomeTemplates() {
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/income`);
+                const templates = await response.json();
+                
+                const groupedTemplates = {};
+                templates.forEach(t => {
+                    if (!groupedTemplates[t.category]) {
+                        groupedTemplates[t.category] = [];
+                    }
+                    groupedTemplates[t.category].push(t);
+                });
+                
+                let html = '';
+                for (const [category, items] of Object.entries(groupedTemplates)) {
+                    html += `
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                ${category} (${items.length} templates)
+                            </h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
+                                ${items.map(t => `
+                                    <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid ${t.is_recurring ? '#10b981' : '#f59e0b'};">
+                                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                            <div>
+                                                <strong style="font-size: 1.1rem; color: #1a202c;">${t.subcategory || category}</strong>
+                                                ${t.is_recurring ? '<span style="background: #d1fae5; color: #065f46; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; margin-left: 5px;">Recurring</span>' : ''}
+                                            </div>
+                                            <div>
+                                                <button onclick="deleteIncomeTemplate(${t.id})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">🗑️</button>
+                                            </div>
+                                        </div>
+                                        <p style="color: #6b7280; font-size: 0.9rem; margin: 5px 0;">${t.description || 'No description'}</p>
+                                        <p style="color: #10b981; font-size: 1.3rem; font-weight: bold; margin-top: 10px;">₹${t.default_amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('incomeTemplatesList').innerHTML = html || '<p style="color: #6b7280;">No income templates found. Add your first template!</p>';
+            } catch (error) {
+                console.error('Error loading income templates:', error);
+            }
+        }
+
+        async function addExpenseTemplate(event) {
+            event.preventDefault();
+            
+            const data = {
+                category: document.getElementById('expenseTemplateCategory').value,
+                subcategory: document.getElementById('expenseTemplateSubcategory').value,
+                default_amount: parseFloat(document.getElementById('expenseTemplateAmount').value) || 0,
+                description: document.getElementById('expenseTemplateDescription').value,
+                is_recurring: document.getElementById('expenseTemplateRecurring').checked ? 1 : 0
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/expense`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    closeModal('addExpenseTemplateModal');
+                    event.target.reset();
+                    loadExpenseTemplates();
+                    alert('Expense template added successfully!');
+                }
+            } catch (error) {
+                console.error('Error adding expense template:', error);
+                alert('Error adding template');
+            }
+        }
+
+        async function addIncomeTemplate(event) {
+            event.preventDefault();
+            
+            const data = {
+                category: document.getElementById('incomeTemplateCategory').value,
+                subcategory: document.getElementById('incomeTemplateSubcategory').value,
+                default_amount: parseFloat(document.getElementById('incomeTemplateAmount').value) || 0,
+                description: document.getElementById('incomeTemplateDescription').value,
+                is_recurring: document.getElementById('incomeTemplateRecurring').checked ? 1 : 0
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/income`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    closeModal('addIncomeTemplateModal');
+                    event.target.reset();
+                    loadIncomeTemplates();
+                    alert('Income template added successfully!');
+                }
+            } catch (error) {
+                console.error('Error adding income template:', error);
+                alert('Error adding template');
+            }
+        }
+
+        async function deleteExpenseTemplate(id) {
+            if (!confirm('Are you sure you want to delete this template?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/expense/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadExpenseTemplates();
+                    alert('Template deleted successfully!');
+                }
+            } catch (error) {
+                console.error('Error deleting template:', error);
+                alert('Error deleting template');
+            }
+        }
+
+        async function deleteIncomeTemplate(id) {
+            if (!confirm('Are you sure you want to delete this template?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/income/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadIncomeTemplates();
+                    alert('Template deleted successfully!');
+                }
+            } catch (error) {
+                console.error('Error deleting template:', error);
+                alert('Error deleting template');
+            }
+        }
+
+        function useExpenseTemplate(id, category, subcategory, amount) {
+            document.getElementById('expenseCategory').value = subcategory || category;
+            document.getElementById('expenseAmount').value = amount;
+            document.getElementById('expenseDescription').value = subcategory || category;
+            openModal('addExpenseModal');
+        }
+
+        // Asset Templates Functions
+        async function loadAssetTemplates() {
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/asset`);
+                const templates = await response.json();
+                
+                const groupedTemplates = {};
+                templates.forEach(t => {
+                    if (!groupedTemplates[t.category]) {
+                        groupedTemplates[t.category] = [];
+                    }
+                    groupedTemplates[t.category].push(t);
+                });
+                
+                let html = '';
+                for (const [category, items] of Object.entries(groupedTemplates)) {
+                    html += `
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                ${category} (${items.length} templates)
+                            </h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
+                                ${items.map(t => `
+                                    <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #10b981;">
+                                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                            <div>
+                                                <strong style="font-size: 1.1rem; color: #1a202c;">${t.subcategory || category}</strong>
+                                            </div>
+                                            <div>
+                                                <button onclick="deleteAssetTemplate(${t.id})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">🗑️</button>
+                                            </div>
+                                        </div>
+                                        <p style="color: #6b7280; font-size: 0.9rem; margin: 5px 0;">${t.description || 'No description'}</p>
+                                        <p style="color: #10b981; font-size: 1.3rem; font-weight: bold; margin-top: 10px;">₹${t.default_amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('assetTemplatesList').innerHTML = html || '<p style="color: #6b7280;">No asset templates found. Add your first template!</p>';
+            } catch (error) {
+                console.error('Error loading asset templates:', error);
+            }
+        }
+
+        async function addAssetTemplate(event) {
+            event.preventDefault();
+            
+            const data = {
+                category: document.getElementById('assetTemplateCategory').value,
+                subcategory: document.getElementById('assetTemplateSubcategory').value,
+                default_amount: parseFloat(document.getElementById('assetTemplateAmount').value) || 0,
+                description: document.getElementById('assetTemplateDescription').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/asset`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    closeModal('addAssetTemplateModal');
+                    event.target.reset();
+                    loadAssetTemplates();
+                    loadAssetCategories(); // Refresh dropdown
+                    alert('Asset template added successfully!');
+                }
+            } catch (error) {
+                console.error('Error adding asset template:', error);
+                alert('Error adding template');
+            }
+        }
+
+        async function deleteAssetTemplate(id) {
+            if (!confirm('Are you sure you want to delete this template?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/asset/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadAssetTemplates();
+                    loadAssetCategories(); // Refresh dropdown
+                    alert('Template deleted successfully!');
+                }
+            } catch (error) {
+                console.error('Error deleting template:', error);
+                alert('Error deleting template');
+            }
+        }
+
+        // Liability Templates Functions
+        async function loadLiabilityTemplates() {
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/liability`);
+                const templates = await response.json();
+                
+                const groupedTemplates = {};
+                templates.forEach(t => {
+                    if (!groupedTemplates[t.category]) {
+                        groupedTemplates[t.category] = [];
+                    }
+                    groupedTemplates[t.category].push(t);
+                });
+                
+                let html = '';
+                for (const [category, items] of Object.entries(groupedTemplates)) {
+                    html += `
+                        <div style="margin-bottom: 30px;">
+                            <h4 style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                                ${category} (${items.length} templates)
+                            </h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px;">
+                                ${items.map(t => `
+                                    <div style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-left: 4px solid #ef4444;">
+                                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                                            <div>
+                                                <strong style="font-size: 1.1rem; color: #1a202c;">${t.subcategory || category}</strong>
+                                            </div>
+                                            <div>
+                                                <button onclick="deleteLiabilityTemplate(${t.id})" style="background: #ef4444; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer;">🗑️</button>
+                                            </div>
+                                        </div>
+                                        <p style="color: #6b7280; font-size: 0.9rem; margin: 5px 0;">${t.description || 'No description'}</p>
+                                        <p style="color: #ef4444; font-size: 1.3rem; font-weight: bold; margin-top: 10px;">₹${t.default_amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</p>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                document.getElementById('liabilityTemplatesList').innerHTML = html || '<p style="color: #6b7280;">No liability templates found. Add your first template!</p>';
+            } catch (error) {
+                console.error('Error loading liability templates:', error);
+            }
+        }
+
+        async function addLiabilityTemplate(event) {
+            event.preventDefault();
+            
+            const data = {
+                category: document.getElementById('liabilityTemplateCategory').value,
+                subcategory: document.getElementById('liabilityTemplateSubcategory').value,
+                default_amount: parseFloat(document.getElementById('liabilityTemplateAmount').value) || 0,
+                description: document.getElementById('liabilityTemplateDescription').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/liability`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    closeModal('addLiabilityTemplateModal');
+                    event.target.reset();
+                    loadLiabilityTemplates();
+                    loadLiabilityCategories(); // Refresh dropdown
+                    alert('Liability template added successfully!');
+                }
+            } catch (error) {
+                console.error('Error adding liability template:', error);
+                alert('Error adding template');
+            }
+        }
+
+        async function deleteLiabilityTemplate(id) {
+            if (!confirm('Are you sure you want to delete this template?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/liability/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    loadLiabilityTemplates();
+                    loadLiabilityCategories(); // Refresh dropdown
+                    alert('Template deleted successfully!');
+                }
+            } catch (error) {
+                console.error('Error deleting template:', error);
+                alert('Error deleting template');
+            }
+        }
+
+        // Load Expense Categories for Dropdown
+        async function loadExpenseCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/expense/categories`);
+                const categories = await response.json();
+                
+                const select = document.getElementById('expenseCategory');
+                select.innerHTML = '<option value="">Select Category</option>';
+                
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.category;
+                    option.textContent = cat.category;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading expense categories:', error);
+            }
+        }
+
+        // Load Asset Categories for Dropdown
+        async function loadAssetCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/asset/categories`);
+                const categories = await response.json();
+                
+                const select = document.getElementById('assetCategory');
+                select.innerHTML = '<option value="">Select Category</option>';
+                
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.category;
+                    option.textContent = cat.category;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading asset categories:', error);
+            }
+        }
+
+        // Load Liability Categories for Dropdown
+        async function loadLiabilityCategories() {
+            try {
+                const response = await fetch(`${API_BASE}/api/templates/liability/categories`);
+                const categories = await response.json();
+                
+                const select = document.getElementById('liabilityCategory');
+                select.innerHTML = '<option value="">Select Type</option>';
+                
+                categories.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.category;
+                    option.textContent = cat.category;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error loading liability categories:', error);
+            }
+        }
+
+        // Investment Tab Functions
+        function showInvestmentTab(type) {
+            document.getElementById('btnRD').style.opacity = type === 'rd' ? '1' : '0.6';
+            document.getElementById('btnChit').style.opacity = type === 'chit' ? '1' : '0.6';
+            document.getElementById('btnGoldChit').style.opacity = type === 'gold-chit' ? '1' : '0.6';
+            
+            document.getElementById('rdSection').style.display = type === 'rd' ? 'block' : 'none';
+            document.getElementById('chitSection').style.display = type === 'chit' ? 'block' : 'none';
+            document.getElementById('goldChitSection').style.display = type === 'gold-chit' ? 'block' : 'none';
+            
+            if (type === 'rd') loadRDs();
+            else if (type === 'chit') loadChits();
+            else if (type === 'gold-chit') loadGoldChits();
+        }
+
+        // RD Functions
+        async function loadRDs() {
+            try {
+                const response = await fetch(`${API_BASE}/api/rd`);
+                const rds = await response.json();
+                
+                let html = '';
+                rds.forEach(rd => {
+                    const progress = (rd.paid_months / rd.tenure) * 100;
+                    html += `
+                        <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                <div>
+                                    <h3 style="margin: 0; color: #1a202c;">${rd.bank_name}</h3>
+                                    <p style="color: #6b7280; margin: 5px 0;">Account: ${rd.account_number || 'N/A'}</p>
+                                </div>
+                                <button onclick="deleteRD(${rd.id})" style="background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Delete</button>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 15px 0;">
+                                <div style="background: #eff6ff; padding: 10px; border-radius: 8px;">
+                                    <small style="color: #6b7280;">Monthly Amount</small>
+                                    <p style="font-size: 1.2rem; font-weight: bold; color: #3b82f6; margin: 5px 0;">₹${rd.monthly_amount.toLocaleString('en-IN')}</p>
+                                </div>
+                                <div style="background: #f0fdf4; padding: 10px; border-radius: 8px;">
+                                    <small style="color: #6b7280;">Maturity Amount</small>
+                                    <p style="font-size: 1.2rem; font-weight: bold; color: #10b981; margin: 5px 0;">₹${rd.maturity_amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</p>
+                                </div>
+                                <div style="background: #fef3c7; padding: 10px; border-radius: 8px;">
+                                    <small style="color: #6b7280;">Interest Rate</small>
+                                    <p style="font-size: 1.2rem; font-weight: bold; color: #f59e0b; margin: 5px 0;">${rd.interest_rate}%</p>
+                                </div>
+                            </div>
+                            
+                            <div style="margin: 15px 0;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span>Progress: ${rd.paid_months} / ${rd.tenure} months</span>
+                                    <span>${progress.toFixed(1)}%</span>
+                                </div>
+                                <div style="background: #e5e7eb; height: 10px; border-radius: 5px; overflow: hidden;">
+                                    <div style="background: #10b981; height: 100%; width: ${progress}%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <strong>Payments:</strong>
+                                <div style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
+                                    ${rd.payments.length > 0 ? `
+                                        <table style="width: 100%; border-collapse: collapse;">
+                                            <thead>
+                                                <tr style="background: #f3f4f6;">
+                                                    <th style="padding: 8px; text-align: left;">Month</th>
+                                                    <th style="padding: 8px; text-align: left;">Date</th>
+                                                    <th style="padding: 8px; text-align: right;">Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${rd.payments.map(p => `
+                                                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                                                        <td style="padding: 8px;">${p.month_number}</td>
+                                                        <td style="padding: 8px;">${p.payment_date}</td>
+                                                        <td style="padding: 8px; text-align: right; color: #10b981;">₹${p.amount.toLocaleString('en-IN')}</td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    ` : '<p style="color: #6b7280;">No payments yet</p>'}
+                                </div>
+                                ${rd.paid_months < rd.tenure ? `
+                                    <button onclick="showAddRDPayment(${rd.id})" style="background: #3b82f6; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px;">Add Payment</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('rdList').innerHTML = html || '<p style="color: #6b7280;">No RD accounts found</p>';
+            } catch (error) {
+                console.error('Error loading RDs:', error);
+            }
+        }
+
+        async function addRD(event) {
+            event.preventDefault();
+            const data = {
+                bank_name: document.getElementById('rdBankName').value,
+                account_number: document.getElementById('rdAccountNumber').value,
+                monthly_amount: parseFloat(document.getElementById('rdMonthlyAmount').value),
+                interest_rate: parseFloat(document.getElementById('rdInterestRate').value),
+                tenure: parseInt(document.getElementById('rdTenure').value),
+                start_date: document.getElementById('rdStartDate').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/rd`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    closeModal('addRDModal');
+                    event.target.reset();
+                    loadRDs();
+                    alert(`RD added! Maturity Amount: ₹${result.maturity_amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}`);
+                }
+            } catch (error) {
+                console.error('Error adding RD:', error);
+                alert('Error adding RD');
+            }
+        }
+
+        function showAddRDPayment(rdId) {
+            const date = prompt('Enter payment date (YYYY-MM-DD):');
+            const amount = prompt('Enter payment amount:');
+            if (date && amount) {
+                addRDPayment(rdId, date, parseFloat(amount));
+            }
+        }
+
+        async function addRDPayment(rdId, date, amount) {
+            try {
+                const response = await fetch(`${API_BASE}/api/rd/${rdId}/payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payment_date: date, amount: amount })
+                });
+                
+                if (response.ok) {
+                    loadRDs();
+                    alert('Payment added successfully!');
+                }
+            } catch (error) {
+                console.error('Error adding payment:', error);
+            }
+        }
+
+        async function deleteRD(id) {
+            if (!confirm('Are you sure you want to delete this RD?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/rd/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    loadRDs();
+                    alert('RD deleted successfully!');
+                }
+            } catch (error) {
+                console.error('Error deleting RD:', error);
+            }
+        }
+
+        // Chit Fund Functions
+        async function loadChits() {
+            try {
+                const response = await fetch(`${API_BASE}/api/chit`);
+                const chits = await response.json();
+                
+                let html = '';
+                chits.forEach(chit => {
+                    const progress = (chit.paid_months / chit.total_months) * 100;
+                    html += `
+                        <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                <div>
+                                    <h3 style="margin: 0; color: #1a202c;">${chit.chit_name}</h3>
+                                    <p style="color: #6b7280; margin: 5px 0;">Organizer: ${chit.organizer || 'N/A'}</p>
+                                </div>
+                                <button onclick="deleteChit(${chit.id})" style="background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Delete</button>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 15px 0;">
+                                <div style="background: #eff6ff; padding: 10px; border-radius: 8px;">
+                                    <small style="color: #6b7280;">Total Value</small>
+                                    <p style="font-size: 1.2rem; font-weight: bold; color: #3b82f6; margin: 5px 0;">₹${chit.total_value.toLocaleString('en-IN')}</p>
+                                </div>
+                                <div style="background: #f0fdf4; padding: 10px; border-radius: 8px;">
+                                    <small style="color: #6b7280;">Monthly Amount</small>
+                                    <p style="font-size: 1.2rem; font-weight: bold; color: #10b981; margin: 5px 0;">₹${chit.monthly_amount.toLocaleString('en-IN')}</p>
+                                </div>
+                                <div style="background: #fef3c7; padding: 10px; border-radius: 8px;">
+                                    <small style="color: #6b7280;">Total Paid</small>
+                                    <p style="font-size: 1.2rem; font-weight: bold; color: #f59e0b; margin: 5px 0;">₹${chit.total_paid.toLocaleString('en-IN')}</p>
+                                </div>
+                            </div>
+                            
+                            <div style="margin: 15px 0;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span>Progress: ${chit.paid_months} / ${chit.total_months} months</span>
+                                    <span>${progress.toFixed(1)}%</span>
+                                </div>
+                                <div style="background: #e5e7eb; height: 10px; border-radius: 5px; overflow: hidden;">
+                                    <div style="background: #8b5cf6; height: 100%; width: ${progress}%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <strong>Payments:</strong>
+                                <div style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
+                                    ${chit.payments.length > 0 ? `
+                                        <table style="width: 100%; border-collapse: collapse;">
+                                            <thead>
+                                                <tr style="background: #f3f4f6;">
+                                                    <th style="padding: 8px; text-align: left;">Month</th>
+                                                    <th style="padding: 8px; text-align: left;">Date</th>
+                                                    <th style="padding: 8px; text-align: right;">Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${chit.payments.map(p => `
+                                                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                                                        <td style="padding: 8px;">${p.month_number}</td>
+                                                        <td style="padding: 8px;">${p.payment_date}</td>
+                                                        <td style="padding: 8px; text-align: right; color: #8b5cf6;">₹${p.amount.toLocaleString('en-IN')}</td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    ` : '<p style="color: #6b7280;">No payments yet</p>'}
+                                </div>
+                                ${chit.paid_months < chit.total_months ? `
+                                    <button onclick="showAddChitPayment(${chit.id})" style="background: #8b5cf6; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px;">Add Payment</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('chitList').innerHTML = html || '<p style="color: #6b7280;">No chit funds found</p>';
+            } catch (error) {
+                console.error('Error loading chits:', error);
+            }
+        }
+
+        async function addChit(event) {
+            event.preventDefault();
+            const data = {
+                chit_name: document.getElementById('chitName').value,
+                total_value: parseFloat(document.getElementById('chitTotalValue').value),
+                monthly_amount: parseFloat(document.getElementById('chitMonthlyAmount').value),
+                total_months: parseInt(document.getElementById('chitTotalMonths').value),
+                start_date: document.getElementById('chitStartDate').value,
+                organizer: document.getElementById('chitOrganizer').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/chit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    closeModal('addChitModal');
+                    event.target.reset();
+                    loadChits();
+                    alert('Chit fund added successfully!');
+                }
+            } catch (error) {
+                console.error('Error adding chit:', error);
+                alert('Error adding chit fund');
+            }
+        }
+
+        function showAddChitPayment(chitId) {
+            const date = prompt('Enter payment date (YYYY-MM-DD):');
+            const amount = prompt('Enter payment amount:');
+            if (date && amount) {
+                addChitPayment(chitId, date, parseFloat(amount));
+            }
+        }
+
+        async function addChitPayment(chitId, date, amount) {
+            try {
+                const response = await fetch(`${API_BASE}/api/chit/${chitId}/payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payment_date: date, amount: amount })
+                });
+                
+                if (response.ok) {
+                    loadChits();
+                    alert('Payment added successfully!');
+                }
+            } catch (error) {
+                console.error('Error adding payment:', error);
+            }
+        }
+
+        async function deleteChit(id) {
+            if (!confirm('Are you sure you want to delete this chit fund?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/chit/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    loadChits();
+                    alert('Chit fund deleted successfully!');
+                }
+            } catch (error) {
+                console.error('Error deleting chit:', error);
+            }
+        }
+
+        // Gold Chit Functions
+        async function loadGoldChits() {
+            try {
+                const response = await fetch(`${API_BASE}/api/gold-chit`);
+                const goldChits = await response.json();
+                
+                let html = '';
+                goldChits.forEach(gc => {
+                    const progress = (gc.paid_months / gc.total_months) * 100;
+                    html += `
+                        <div style="background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                                <div>
+                                    <h3 style="margin: 0; color: #1a202c;">${gc.chit_name}</h3>
+                                    <p style="color: #6b7280; margin: 5px 0;">Jeweller: ${gc.jeweller || 'N/A'} | Gold: ${gc.gold_weight}g</p>
+                                </div>
+                                <button onclick="deleteGoldChit(${gc.id})" style="background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer;">Delete</button>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 15px 0;">
+                                <div style="background: #fef3c7; padding: 10px; border-radius: 8px;">
+                                    <small style="color: #6b7280;">Gold Weight</small>
+                                    <p style="font-size: 1.2rem; font-weight: bold; color: #f59e0b; margin: 5px 0;">${gc.gold_weight}g</p>
+                                </div>
+                                <div style="background: #eff6ff; padding: 10px; border-radius: 8px;">
+                                    <small style="color: #6b7280;">Monthly Amount</small>
+                                    <p style="font-size: 1.2rem; font-weight: bold; color: #3b82f6; margin: 5px 0;">₹${gc.monthly_amount.toLocaleString('en-IN')}</p>
+                                </div>
+                                <div style="background: #f0fdf4; padding: 10px; border-radius: 8px;">
+                                    <small style="color: #6b7280;">Total Paid</small>
+                                    <p style="font-size: 1.2rem; font-weight: bold; color: #10b981; margin: 5px 0;">₹${gc.total_paid.toLocaleString('en-IN')}</p>
+                                </div>
+                            </div>
+                            
+                            <div style="margin: 15px 0;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                    <span>Progress: ${gc.paid_months} / ${gc.total_months} months</span>
+                                    <span>${progress.toFixed(1)}%</span>
+                                </div>
+                                <div style="background: #e5e7eb; height: 10px; border-radius: 5px; overflow: hidden;">
+                                    <div style="background: #f59e0b; height: 100%; width: ${progress}%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <strong>Payments:</strong>
+                                <div style="max-height: 200px; overflow-y: auto; margin-top: 10px;">
+                                    ${gc.payments.length > 0 ? `
+                                        <table style="width: 100%; border-collapse: collapse;">
+                                            <thead>
+                                                <tr style="background: #f3f4f6;">
+                                                    <th style="padding: 8px; text-align: left;">Month</th>
+                                                    <th style="padding: 8px; text-align: left;">Date</th>
+                                                    <th style="padding: 8px; text-align: right;">Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${gc.payments.map(p => `
+                                                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                                                        <td style="padding: 8px;">${p.month_number}</td>
+                                                        <td style="padding: 8px;">${p.payment_date}</td>
+                                                        <td style="padding: 8px; text-align: right; color: #f59e0b;">₹${p.amount.toLocaleString('en-IN')}</td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    ` : '<p style="color: #6b7280;">No payments yet</p>'}
+                                </div>
+                                ${gc.paid_months < gc.total_months ? `
+                                    <button onclick="showAddGoldChitPayment(${gc.id})" style="background: #f59e0b; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin-top: 10px;">Add Payment</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                document.getElementById('goldChitList').innerHTML = html || '<p style="color: #6b7280;">No gold chits found</p>';
+            } catch (error) {
+                console.error('Error loading gold chits:', error);
+            }
+        }
+
+        async function addGoldChit(event) {
+            event.preventDefault();
+            const data = {
+                chit_name: document.getElementById('goldChitName').value,
+                gold_weight: parseFloat(document.getElementById('goldWeight').value),
+                monthly_amount: parseFloat(document.getElementById('goldChitMonthlyAmount').value),
+                total_months: parseInt(document.getElementById('goldChitTotalMonths').value),
+                start_date: document.getElementById('goldChitStartDate').value,
+                jeweller: document.getElementById('goldChitJeweller').value
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/gold-chit`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    closeModal('addGoldChitModal');
+                    event.target.reset();
+                    loadGoldChits();
+                    alert('Gold chit added successfully!');
+                }
+            } catch (error) {
+                console.error('Error adding gold chit:', error);
+                alert('Error adding gold chit');
+            }
+        }
+
+        function showAddGoldChitPayment(gcId) {
+            const date = prompt('Enter payment date (YYYY-MM-DD):');
+            const amount = prompt('Enter payment amount:');
+            if (date && amount) {
+                addGoldChitPayment(gcId, date, parseFloat(amount));
+            }
+        }
+
+        async function addGoldChitPayment(gcId, date, amount) {
+            try {
+                const response = await fetch(`${API_BASE}/api/gold-chit/${gcId}/payment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payment_date: date, amount: amount })
+                });
+                
+                if (response.ok) {
+                    loadGoldChits();
+                    alert('Payment added successfully!');
+                }
+            } catch (error) {
+                console.error('Error adding payment:', error);
+            }
+        }
+
+        async function deleteGoldChit(id) {
+            if (!confirm('Are you sure you want to delete this gold chit?')) return;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/gold-chit/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    loadGoldChits();
+                    alert('Gold chit deleted successfully!');
+                }
+            } catch (error) {
+                console.error('Error deleting gold chit:', error);
+            }
+        }
+    </script>
+</body>
+</html>

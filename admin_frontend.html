@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Personal Finance Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e5e7eb;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #6b7280;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+        
+        .tab.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            opacity: 0.9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-card .number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .table-container {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        .table th {
+            background: #2563eb;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .table tr:hover {
+            background: #f3f4f6;
+        }
+        
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .btn {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .btn:hover {
+            background: #1d4ed8;
+        }
+        
+        .btn-danger {
+            background: #ef4444;
+        }
+        
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+        
+        .btn-success {
+            background: #10b981;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #10b981;
+        }
+        
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #ef4444;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        
+        .amount {
+            font-weight: bold;
+        }
+        
+        .amount.positive {
+            color: #10b981;
+        }
+        
+        .amount.negative {
+            color: #ef4444;
+        }
+        
+        .amount.neutral {
+            color: #6b7280;
+        }
+        
+        .modal {
+            display: flex;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+        }
+        
+        .close {
+            position: absolute;
+            right: 15px;
+            top: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+        
+        .close:hover {
+            color: #000;
+        }
+        
+        .btn-edit {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+        
+        .btn-edit:hover {
+            background: #d97706;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-container {
+                padding: 10px;
+            }
+            
+            .table th, .table td {
+                padding: 8px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <h2>🔐 Admin Login</h2>
+            <form onsubmit="adminLogin(event)">
+                <div class="form-group">
+                    <label>Username:</label>
+                    <input type="text" id="adminUsername" value="admin" required>
+                </div>
+                <div class="form-group">
+                    <label>Password:</label>
+                    <input type="password" id="adminPassword" value="admin123" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeEditModal()">&times;</span>
+            <h2 id="editTitle">Edit Item</h2>
+            <form id="editForm" onsubmit="saveEdit(event)">
+                <div id="editFields"></div>
+                <button type="submit" class="btn">Save Changes</button>
+                <button type="button" class="btn btn-danger" onclick="closeEditModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="container" id="mainContent" style="display: none;">
+        <div class="header">
+            <h1>🛠️ Admin Dashboard</h1>
+            <p>Manage users, view reports, and oversee financial data</p>
+            <button class="btn btn-danger" onclick="logout()" style="position: absolute; top: 20px; right: 20px;">Logout</button>
+        </div>
+        
+        <div class="content">
+            <div id="status"></div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('overview')">📊 Overview</button>
+                <button class="tab" onclick="showTab('users')">👥 Users</button>
+                <button class="tab" onclick="showTab('expenses')">💸 Expenses</button>
+                <button class="tab" onclick="showTab('assets')">🏦 Assets</button>
+                <button class="tab" onclick="showTab('liabilities')">💳 Liabilities</button>
+                <button class="tab" onclick="showTab('reports')">📈 Reports</button>
+            </div>
+            
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <h2>📊 System Overview</h2>
+                <div class="stats-grid" id="statsGrid">
+                    <!-- Stats will be populated by JavaScript -->
+                </div>
+                
+                <div class="chart-container">
+                    <h3>📈 Monthly Financial Summary</h3>
+                    <div id="monthlyChart">
+                        <!-- Chart data will be populated -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Users Tab -->
+            <div id="users" class="tab-content">
+                <h2>👥 User Management</h2>
+                
+                <div class="table-container">
+                    <h3>All Users</h3>
+                    <table class="table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Users will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Expenses Tab -->
+            <div id="expenses" class="tab-content">
+                <h2>💸 Expense Management</h2>
+                
+                <div class="table-container">
+                    <h3>All Expenses</h3>
+                    <table class="table" id="expensesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User ID</th>
+                                <th>Category</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Date</th>
+                                <th>Month</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="expensesTableBody">
+                            <!-- Expenses will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Assets Tab -->
+            <div id="assets" class="tab-content">
+                <h2>🏦 Asset Management</h2>
+                
+                <div class="table-container">
+                    <h3>All Assets</h3>
+                    <table class="table" id="assetsTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Value</th>
+                                <th>Month</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetsTableBody">
+                            <!-- Assets will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Liabilities Tab -->
+            <div id="liabilities" class="tab-content">
+                <h2>💳 Liability Management</h2>
+                
+                <div class="table-container">
+                    <h3>All Liabilities</h3>
+                    <table class="table" id="liabilitiesTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>User ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Amount</th>
+                                <th>Month</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="liabilitiesTableBody">
+                            <!-- Liabilities will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Reports Tab -->
+            <div id="reports" class="tab-content">
+                <h2>📈 Financial Reports</h2>
+                
+                <div class="chart-container">
+                    <h3>📊 Monthly Breakdown</h3>
+                    <div id="monthlyBreakdown">
+                        <!-- Monthly data will be populated -->
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <h3>📋 Summary by Month</h3>
+                    <table class="table" id="monthlyTable">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th>Total Expenses</th>
+                                <th>Total Assets</th>
+                                <th>Total Liabilities</th>
+                                <th>Net Worth</th>
+                            </tr>
+                        </thead>
+                        <tbody id="monthlyTableBody">
+                            <!-- Monthly data will be populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        let currentEditItem = null;
+        let isLoggedIn = false;
+        
+        // Check login status on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('adminToken');
+            if (token) {
+                isLoggedIn = true;
+                showMainContent();
+            } else {
+                showLoginModal();
+            }
+        });
+        
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'none';
+        }
+        
+        function showMainContent() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            loadOverview();
+        }
+        
+        async function adminLogin(event) {
+            event.preventDefault();
+            
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    localStorage.setItem('adminToken', data.token);
+                    isLoggedIn = true;
+                    showMainContent();
+                    showStatus('✅ Login successful!');
+                } else {
+                    showStatus('❌ Invalid credentials', 'error');
+                }
+            } catch (error) {
+                showStatus('❌ Login error', 'error');
+            }
+        }
+        
+        function logout() {
+            localStorage.removeItem('adminToken');
+            isLoggedIn = false;
+            showLoginModal();
+        }
+        
+        function showStatus(message, type = 'success') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = `<div class="status ${type}">${message}</div>`;
+            setTimeout(() => statusDiv.innerHTML = '', 5000);
+        }
+        
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Load data for the tab
+            if (tabName === 'overview') loadOverview();
+            if (tabName === 'users') loadUsers();
+            if (tabName === 'expenses') loadExpenses();
+            if (tabName === 'assets') loadAssets();
+            if (tabName === 'liabilities') loadLiabilities();
+            if (tabName === 'reports') loadReports();
+        }
+        
+        async function loadOverview() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/reports`);
+                const data = await response.json();
+                
+                const statsGrid = document.getElementById('statsGrid');
+                statsGrid.innerHTML = `
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <div class="number">${data.summary.total_users}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Expenses</h3>
+                        <div class="number">${data.summary.total_expenses}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Assets</h3>
+                        <div class="number">${data.summary.total_assets}</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Liabilities</h3>
+                        <div class="number">${data.summary.total_liabilities}</div>
+                    </div>
+                `;
+                
+                // Display monthly chart data
+                const chartDiv = document.getElementById('monthlyChart');
+                if (data.monthly_data.length > 0) {
+                    chartDiv.innerHTML = data.monthly_data.map(month => `
+                        <div style="display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #e5e7eb;">
+                            <strong>${month.month}</strong>
+                            <span>Expenses: $${(month.expenses || 0).toFixed(2)} | Assets: $${(month.assets || 0).toFixed(2)} | Liabilities: $${(month.liabilities || 0).toFixed(2)}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    chartDiv.innerHTML = '<p>No monthly data available</p>';
+                }
+                
+            } catch (error) {
+                showStatus('Error loading overview data', 'error');
+            }
+        }
+        
+        async function loadUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/users`);
+                const users = await response.json();
+                
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = users.map(user => `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn btn-danger" onclick="deleteItem('users', ${user.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                showStatus('Error loading users', 'error');
+            }
+        }
+        
+        async function loadExpenses() {
+            try {
+                const response = await fetch(`${API_BASE}/api/expenses`);
+                const expenses = await response.json();
+                
+                const tbody = document.getElementById('expensesTableBody');
+                tbody.innerHTML = expenses.map(expense => `
+                    <tr>
+                        <td>${expense.id}</td>
+                        <td>${expense.user_id}</td>
+                        <td>${expense.category}</td>
+                        <td>${expense.description}</td>
+                        <td class="amount negative">$${expense.amount}</td>
+                        <td>${expense.date}</td>
+                        <td>${expense.month}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editItem('expense', ${expense.id}, ${JSON.stringify(expense).replace(/"/g, '&quot;')})">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteItem('expenses', ${expense.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                showStatus('Error loading expenses', 'error');
+            }
+        }
+        
+        async function loadAssets() {
+            try {
+                const response = await fetch(`${API_BASE}/api/assets`);
+                const assets = await response.json();
+                
+                const tbody = document.getElementById('assetsTableBody');
+                tbody.innerHTML = assets.map(asset => `
+                    <tr>
+                        <td>${asset.id}</td>
+                        <td>${asset.user_id}</td>
+                        <td>${asset.name}</td>
+                        <td>${asset.category}</td>
+                        <td class="amount positive">$${asset.value}</td>
+                        <td>${asset.month}</td>
+                        <td>${new Date(asset.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editItem('asset', ${asset.id}, ${JSON.stringify(asset).replace(/"/g, '&quot;')})">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteItem('assets', ${asset.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                showStatus('Error loading assets', 'error');
+            }
+        }
+        
+        async function loadLiabilities() {
+            try {
+                const response = await fetch(`${API_BASE}/api/liabilities`);
+                const liabilities = await response.json();
+                
+                const tbody = document.getElementById('liabilitiesTableBody');
+                tbody.innerHTML = liabilities.map(liability => `
+                    <tr>
+                        <td>${liability.id}</td>
+                        <td>${liability.user_id}</td>
+                        <td>${liability.name}</td>
+                        <td>${liability.category}</td>
+                        <td class="amount negative">$${liability.amount}</td>
+                        <td>${liability.month}</td>
+                        <td>${new Date(liability.created_at).toLocaleDateString()}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editItem('liability', ${liability.id}, ${JSON.stringify(liability).replace(/"/g, '&quot;')})">Edit</button>
+                            <button class="btn btn-danger" onclick="deleteItem('liabilities', ${liability.id})">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (error) {
+                showStatus('Error loading liabilities', 'error');
+            }
+        }
+        
+        async function loadReports() {
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/reports`);
+                const data = await response.json();
+                
+                const tbody = document.getElementById('monthlyTableBody');
+                tbody.innerHTML = data.monthly_data.map(month => {
+                    const netWorth = (month.assets || 0) - (month.liabilities || 0);
+                    return `
+                        <tr>
+                            <td><strong>${month.month}</strong></td>
+                            <td class="amount negative">$${(month.expenses || 0).toFixed(2)}</td>
+                            <td class="amount positive">$${(month.assets || 0).toFixed(2)}</td>
+                            <td class="amount negative">$${(month.liabilities || 0).toFixed(2)}</td>
+                            <td class="amount ${netWorth >= 0 ? 'positive' : 'negative'}">$${netWorth.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                // Monthly breakdown chart
+                const breakdownDiv = document.getElementById('monthlyBreakdown');
+                breakdownDiv.innerHTML = data.monthly_data.map(month => {
+                    const netWorth = (month.assets || 0) - (month.liabilities || 0);
+                    return `
+                        <div style="background: white; margin: 10px 0; padding: 15px; border-radius: 8px; border-left: 4px solid #2563eb;">
+                            <h4>${month.month}</h4>
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-top: 10px;">
+                                <div>Expenses: <span class="amount negative">$${(month.expenses || 0).toFixed(2)}</span></div>
+                                <div>Assets: <span class="amount positive">$${(month.assets || 0).toFixed(2)}</span></div>
+                                <div>Liabilities: <span class="amount negative">$${(month.liabilities || 0).toFixed(2)}</span></div>
+                                <div>Net Worth: <span class="amount ${netWorth >= 0 ? 'positive' : 'negative'}">$${netWorth.toFixed(2)}</span></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                showStatus('Error loading reports', 'error');
+            }
+        }
+        
+        async function deleteItem(table, id) {
+            if (!confirm(`Are you sure you want to delete this ${table.slice(0, -1)}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/delete/${table}/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showStatus(`${table.slice(0, -1)} deleted successfully`);
+                    // Reload the current tab data
+                    if (table === 'users') loadUsers();
+                    if (table === 'expenses') loadExpenses();
+                    if (table === 'assets') loadAssets();
+                    if (table === 'liabilities') loadLiabilities();
+                } else {
+                    showStatus(`Failed to delete ${table.slice(0, -1)}`, 'error');
+                }
+            } catch (error) {
+                showStatus('Error deleting item', 'error');
+            }
+        }
+        
+        function editItem(type, id, item) {
+            currentEditItem = { type, id, ...item };
+            
+            const title = document.getElementById('editTitle');
+            const fields = document.getElementById('editFields');
+            
+            title.textContent = `Edit ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+            
+            let fieldsHtml = '';
+            
+            if (type === 'expense') {
+                fieldsHtml = `
+                    <div class="form-group">
+                        <label>Category:</label>
+                        <input type="text" id="editCategory" value="${item.category}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <input type="text" id="editDescription" value="${item.description}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount:</label>
+                        <input type="number" step="0.01" id="editAmount" value="${item.amount}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Date:</label>
+                        <input type="date" id="editDate" value="${item.date}" required>
+                    </div>
+                `;
+            } else if (type === 'asset') {
+                fieldsHtml = `
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input type="text" id="editName" value="${item.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category:</label>
+                        <input type="text" id="editCategory" value="${item.category}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Value:</label>
+                        <input type="number" step="0.01" id="editValue" value="${item.value}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Month:</label>
+                        <input type="month" id="editMonth" value="${item.month}" required>
+                    </div>
+                `;
+            } else if (type === 'liability') {
+                fieldsHtml = `
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input type="text" id="editName" value="${item.name}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category:</label>
+                        <input type="text" id="editCategory" value="${item.category}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Amount:</label>
+                        <input type="number" step="0.01" id="editAmount" value="${item.amount}" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Month:</label>
+                        <input type="month" id="editMonth" value="${item.month}" required>
+                    </div>
+                `;
+            }
+            
+            fields.innerHTML = fieldsHtml;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+        
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditItem = null;
+        }
+        
+        async function saveEdit(event) {
+            event.preventDefault();
+            
+            if (!currentEditItem) return;
+            
+            const { type, id } = currentEditItem;
+            let data = {};
+            
+            if (type === 'expense') {
+                data = {
+                    category: document.getElementById('editCategory').value,
+                    description: document.getElementById('editDescription').value,
+                    amount: parseFloat(document.getElementById('editAmount').value),
+                    date: document.getElementById('editDate').value
+                };
+            } else if (type === 'asset') {
+                data = {
+                    name: document.getElementById('editName').value,
+                    category: document.getElementById('editCategory').value,
+                    value: parseFloat(document.getElementById('editValue').value),
+                    month: document.getElementById('editMonth').value
+                };
+            } else if (type === 'liability') {
+                data = {
+                    name: document.getElementById('editName').value,
+                    category: document.getElementById('editCategory').value,
+                    amount: parseFloat(document.getElementById('editAmount').value),
+                    month: document.getElementById('editMonth').value
+                };
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/admin/edit/${type}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    showStatus(`✅ ${type.charAt(0).toUpperCase() + type.slice(1)} updated successfully!`);
+                    closeEditModal();
+                    
+                    // Reload the appropriate table
+                    if (type === 'expense') loadExpenses();
+                    if (type === 'asset') loadAssets();
+                    if (type === 'liability') loadLiabilities();
+                } else {
+                    showStatus(`❌ Failed to update ${type}`, 'error');
+                }
+            } catch (error) {
+                showStatus('❌ Error updating item', 'error');
+            }
+        }
+
+        // Load initial data
+        loadOverview();
+    </script>
+</body>
+</html>
